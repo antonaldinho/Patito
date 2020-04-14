@@ -49,7 +49,7 @@ tokens = [
     'OR',
     'COMMA',
     'COMMENT'
-] + list(keywords.values)
+] + list(keywords.values())
 
 t_CTE_STRING = r'".*."'
 t_PLUS = r'\+'
@@ -112,3 +112,5 @@ def t_new_line(t):
 def t_error(t):
     print("Illegal character '{}' at: {}".format(t.value[0], t.lexer.lineno))
     t.lexer.skip(1)
+	
+lex.lex()
