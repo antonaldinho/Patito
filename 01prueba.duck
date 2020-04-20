@@ -1,0 +1,14 @@
+program Example;
+var 
+  int i, j;
+  float myFloat, mySecondFloat;
+  int matrix[1][2];
+main() {
+  aux1 = 13.34;
+  if (2 < 1) {
+     aux3 = 24;
+  } else {
+    aux3 = 25;
+  }
+  print("Good Job", aux1);
+}

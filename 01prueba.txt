@@ -1,0 +1,8 @@
+program prueba01;
+
+var int a;
+
+main ()
+{
+	a = 10;
+}

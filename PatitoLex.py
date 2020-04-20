@@ -15,7 +15,7 @@ keywords = {
     'read': 'READ',
     'while': 'WHILE',
     'do': 'DO',
-    'for': 'FOR',
+    'from': 'FROM',
     'until': 'UNTIL',
     'return': 'RETURN'
 }
@@ -36,7 +36,7 @@ tokens = [
     'R_BRACKET',
     'R_SQ_BRACKET',
     'L_SQ_BRACKET',
-    'COLON',
+    # 'COLON',
     'SEMICOLON',
     'EQUALS',
     'LESS_THAN',
@@ -48,7 +48,7 @@ tokens = [
     'AND',
     'OR',
     'COMMA',
-    'COMMENT'
+    # 'COMMENT'
 ] + list(keywords.values())
 
 t_CTE_STRING = r'".*."'
@@ -62,7 +62,7 @@ t_L_BRACKET = r'{'
 t_R_BRACKET = r'}'
 t_R_SQ_BRACKET = r'\]'
 t_L_SQ_BRACKET = r'\['
-t_COLON = r'\:'
+# t_COLON = r'\:'
 t_SEMICOLON = r';'
 t_EQUALS = r'='
 t_LESS_THAN = r'<'
@@ -74,7 +74,7 @@ t_IS_EQUAL = r'=='
 t_AND = r'&&'
 t_OR = r'\|\|'
 t_COMMA = r'\,'
-t_COMMENT = r'%%.*'
+# t_COMMENT = r'%%.*'
 
 
 def t_CTE_INT(t):
@@ -82,12 +82,11 @@ def t_CTE_INT(t):
     t.value = int(t.value)
     return t
 
-
 def t_CTE_FLOAT(t):
-    r'([0-9]+[.])[0-9]+'
+    r'[+-]?[\d]+[.]+[\d]+'
     t.value = float(t.value)
+    print(t.value)
     return t
-
 
 def t_CTE_CHAR(t):
     r'\'[A-Za-z]\''
@@ -96,7 +95,7 @@ def t_CTE_CHAR(t):
 
 def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = keywords.get(t.value, 'ID')
+    t.type = keywords.get(t.value, 'IDENTIFIER')
     return t
 
 
@@ -113,4 +112,4 @@ def t_error(t):
     print("Illegal character '{}' at: {}".format(t.value[0], t.lexer.lineno))
     t.lexer.skip(1)
 	
-lex.lex()
+lexer = lex.lex()
