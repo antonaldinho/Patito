@@ -119,6 +119,7 @@ def p_F(p):
     | CTE_STRING
     | VARIABLE
     | LLAMADA'''
+    print(p)
 
 def p_VARIABLE(p):
     '''VARIABLE : IDENTIFIER DIMENSIONES'''
@@ -198,6 +199,13 @@ def p_error(token):
         print ("Line %s, illegal token %s" % (token.lineno, token.value))
     else:
         print('Unexpected end of input')
+
+precedence = (
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'MULTIPLICATION', 'DIVISION'),
+    ('right', 'EQUALS'),
+    ('left', 'AND', 'OR'),
+)
 
 yacc.yacc()
 

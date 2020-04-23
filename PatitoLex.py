@@ -75,18 +75,20 @@ t_AND = r'&&'
 t_OR = r'\|\|'
 t_COMMA = r'\,'
 # t_COMMENT = r'%%.*'
+# t_CTE_INT = r'[0-9][0-9]*'
+# t_CTE_FLOAT = r'(\+|-)?[0-9]*.[0-9][0-9]*?f'
 
-
+def t_CTE_FLOAT(t):
+    r'(\+|-)?[0-9]+(\.[0-9]+)?'
+    t.value = float(t.value)
+    print(t.value)
+    return t
+    
 def t_CTE_INT(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
-def t_CTE_FLOAT(t):
-    r'[+-]?[\d]+[.]+[\d]+'
-    t.value = float(t.value)
-    print(t.value)
-    return t
 
 def t_CTE_CHAR(t):
     r'\'[A-Za-z]\''

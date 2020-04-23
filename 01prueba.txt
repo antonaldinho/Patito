@@ -1,8 +1,8 @@
 program prueba01;
 
-var int a;
+var float a;
 
 main ()
 {
-	a = 10;
+	a = 1078128172871.1;
 }
