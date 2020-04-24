@@ -118,8 +118,13 @@ def p_F(p):
     | CTE_CHAR
     | CTE_STRING
     | VARIABLE
-    | LLAMADA'''
-    print(p)
+    | LLAMADA
+    | IDENTIFIER MATRIZ_OP'''
+
+def p_MATRIZ_OP(p):
+    '''MATRIZ_OP : TRANS
+    | INV
+    | DET'''
 
 def p_VARIABLE(p):
     '''VARIABLE : IDENTIFIER DIMENSIONES'''
