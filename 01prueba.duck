@@ -1,0 +1,15 @@
+program Example;
+var 
+  int i, j;
+  float myFloat, mySecondFloat;
+  char myChar;
+  int matrix[1][2];
+main() {
+  myChar = myChar && myChar;
+  if (2 < 1) {
+     myChar = 24;
+  } else {
+    myChar = 25;
+  }
+  print("Good Job", aux1);
+}

@@ -15,7 +15,7 @@ keywords = {
     'read': 'READ',
     'while': 'WHILE',
     'do': 'DO',
-    'for': 'FOR',
+    'from': 'FROM',
     'until': 'UNTIL',
     'return': 'RETURN'
 }
@@ -36,7 +36,7 @@ tokens = [
     'R_BRACKET',
     'R_SQ_BRACKET',
     'L_SQ_BRACKET',
-    'COLON',
+    # 'COLON',
     'SEMICOLON',
     'EQUALS',
     'LESS_THAN',
@@ -48,8 +48,11 @@ tokens = [
     'AND',
     'OR',
     'COMMA',
-    'COMMENT'
-] + list(keywords.values)
+    # 'COMMENT'
+    'TRANS',
+    'INV',
+    'DET'
+] + list(keywords.values())
 
 t_CTE_STRING = r'".*."'
 t_PLUS = r'\+'
@@ -62,7 +65,7 @@ t_L_BRACKET = r'{'
 t_R_BRACKET = r'}'
 t_R_SQ_BRACKET = r'\]'
 t_L_SQ_BRACKET = r'\['
-t_COLON = r'\:'
+# t_COLON = r'\:'
 t_SEMICOLON = r';'
 t_EQUALS = r'='
 t_LESS_THAN = r'<'
@@ -74,18 +77,21 @@ t_IS_EQUAL = r'=='
 t_AND = r'&&'
 t_OR = r'\|\|'
 t_COMMA = r'\,'
-t_COMMENT = r'%%.*'
+# t_COMMENT = r'%%.*'
+# t_CTE_INT = r'[0-9][0-9]*'
+# t_CTE_FLOAT = r'(\+|-)?[0-9]*.[0-9][0-9]*?f'
+t_TRANS = r'¡'
+t_DET = r'\$'
+t_INV = r'\?'
 
+def t_CTE_FLOAT(t):
+    r'(\+|-)?[0-9]+(\.[0-9]+)?'
+    t.value = float(t.value)
+    return t
 
 def t_CTE_INT(t):
     r'\d+'
     t.value = int(t.value)
-    return t
-
-
-def t_CTE_FLOAT(t):
-    r'([0-9]+[.])[0-9]+'
-    t.value = float(t.value)
     return t
 
 
@@ -96,7 +102,7 @@ def t_CTE_CHAR(t):
 
 def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = keywords.get(t.value, 'ID')
+    t.type = keywords.get(t.value, 'IDENTIFIER')
     return t
 
 
@@ -112,3 +118,5 @@ def t_new_line(t):
 def t_error(t):
     print("Illegal character '{}' at: {}".format(t.value[0], t.lexer.lineno))
     t.lexer.skip(1)
+	
+lexer = lex.lex()
