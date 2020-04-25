@@ -3,9 +3,9 @@ program prueba02;
 var 
 	float a, b;
 
-function void funcion01 ()
+function void funcion01 (int myParam, float myParam2)
 var
-	int x,, y;
+	int x, y;
 	float myFloat1, myFloat2;
 	int myMatrix[1];
 	{

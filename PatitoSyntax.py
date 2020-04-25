@@ -79,7 +79,7 @@ def p_PARAMS(p):
     | empty'''
 
 def p_PARAMS_2(p):
-    '''PARAMS_2 : IDENTIFIER PARAMS_3'''
+    '''PARAMS_2 : IDENTIFIER add_var PARAMS_3'''
 
 def p_PARAMS_3(p):
     '''PARAMS_3 : COMMA PARAMS
@@ -237,7 +237,7 @@ def p_empty(p):
 def p_error(token):
     if token is not None:
         print ("Line %s, illegal token %s" % (token.lineno, token.value))
-        parser.errok()
+        parser.errok() # Para que no se meta en un loop infinito al encontrar un error.
     else:
         print('Unexpected end of input')
 
