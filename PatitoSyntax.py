@@ -1,10 +1,26 @@
 import sys
 import ply.yacc as yacc
 from PatitoLex import tokens
+from DirectorioProcedimientos import DirectorioProcedimientos
+
+actualVarType = ''
+actualVarId = ''
+actualFunType = ''
+actualFunId = ''
+procedimientos = DirectorioProcedimientos()
 
 def p_PROGRAMA(p):
-    '''programa : PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES PRINCIPAL'''
+    '''programa : add_main_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES PRINCIPAL'''
     p[0] = "PROGRAM COMPILED"
+
+def p_add_main_function(p):
+    '''add_main_function : '''
+    global actualFunId
+    actualFunId = 'main'
+    global actualFunType
+    actualFunType = 'void'
+    global procedimientos
+    procedimientos.add_function(actualFunId, actualFunType, 0, [], [], 0)
 
 def p_DECLARACIONES(p):
     '''DECLARACIONES : VAR DECLARACIONES_1
@@ -18,28 +34,45 @@ def p_DECLARACIONES_ADD(p):
     | empty'''
 
 def p_DECLARACIONES_2(p):
-    '''DECLARACIONES_2 : IDENTIFIER ARRAY DECLARACIONES_3'''
+    '''DECLARACIONES_2 : IDENTIFIER add_var ARRAY DECLARACIONES_3'''
+
+# def p_ARRAYDIMENSIONS(p):
+#     '''ARRAYDIMENSIONS : L_SQ_BRACKET CTE_INT R_SQ_BRACKET
+#     | L_SQ_BRACKET CTE_INT R_SQ_BRACKET L_SQ_BRACKET CTE_INT R_SQ_BRACKET
+#     | empty'''
 
 def p_DECLARACIONES_3(p):
     '''DECLARACIONES_3 : COMMA DECLARACIONES_2
     | empty'''
 
 def p_ARRAY(p):
-    '''ARRAY : L_SQ_BRACKET CTE_INT R_SQ_BRACKET ARRAY_2
+    '''ARRAY : L_SQ_BRACKET EXPRESION R_SQ_BRACKET ARRAY_2
     | empty'''
 
 def p_ARRAY_2(p):
-    '''ARRAY_2 : L_SQ_BRACKET CTE_INT R_SQ_BRACKET
+    '''ARRAY_2 : L_SQ_BRACKET EXPRESION R_SQ_BRACKET
     | empty'''
 
 def p_TIPO_VAR(p):
-    '''TIPO_VAR : INT
-    | FLOAT
-    | CHAR'''
+    '''TIPO_VAR : INT save_type
+    | FLOAT save_type
+    | CHAR save_type'''
+
+def p_save_type(p):
+    '''save_type : '''
+    global actualVarType
+    actualVarType = p[-1]
 
 def p_FUNCIONES(p):
-    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER L_PAREN PARAMS R_PAREN DECLARACIONES BLOQUE FUNCIONES
+    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER save_func L_PAREN PARAMS R_PAREN DECLARACIONES BLOQUE FUNCIONES
     | empty'''
+
+def p_save_func(p):
+    '''save_func : '''
+    global actualFunId
+    actualFunId = p[-1]
+    global procedimientos
+    procedimientos.add_function(actualFunId, actualFunType, 0, [], [], 0)
 
 def p_PARAMS(p):
     '''PARAMS : TIPO_VAR PARAMS_2
@@ -57,6 +90,8 @@ def p_TIPO_FUNC(p):
     | FLOAT
     | CHAR
     | VOID'''
+    global actualFunType
+    actualFunType = p[0]
 
 def p_ASIGNACION(p):
     '''ASIGNACION : IDENTIFIER DIMENSIONES EQUALS EXPRESION SEMICOLON'''
@@ -202,8 +237,20 @@ def p_empty(p):
 def p_error(token):
     if token is not None:
         print ("Line %s, illegal token %s" % (token.lineno, token.value))
+        parser.errok()
     else:
         print('Unexpected end of input')
+
+def p_add_var(p):
+    '''add_var : '''
+    global procedimientos
+    global actualVarId
+    actualVarId = p[-1]
+    print(actualFunId)
+    if(procedimientos.search(actualFunId) == True):
+        procedimientos.add_var(actualFunId, actualVarId, actualVarType)
+    else:
+        print("Function does not exist.")
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -212,7 +259,7 @@ precedence = (
     ('left', 'AND', 'OR'),
 )
 
-yacc.yacc()
+parser = yacc.yacc()
 
 
 if __name__ == '__main__':
@@ -223,7 +270,7 @@ if __name__ == '__main__':
 			data = f.read()
 			f.close()
 			if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
-				print ("Valid syntax")
+				print ("Finished compiling")
 
 		except EOFError:
 	   		print(EOFError)

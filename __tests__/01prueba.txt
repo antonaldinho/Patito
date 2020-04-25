@@ -1,6 +1,8 @@
 program prueba01;
 
-var float a;
+var
+	float a, b;
+	int x;
 
 main ()
 {
