@@ -6,7 +6,7 @@ class TablaVariables(object):
         self.list[name] = {
             'type': type
         }
-        print("added var: " + str(name) + " with type " + str(type))
+        #print("added var: " + str(name) + " with type " + str(type))
     
     def search(self, name):
         return name in self.list.keys()

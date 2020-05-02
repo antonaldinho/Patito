@@ -15,7 +15,7 @@ class DirectorioProcedimientos(object):
                 'vars': TablaVariables(),
                 'numVars': numVars
             }
-            print("added function: " + name)
+            #print("added function: " + name)
         else:
             print("function" + name + " already declared")
     

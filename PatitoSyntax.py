@@ -2,12 +2,16 @@ import sys
 import ply.yacc as yacc
 from PatitoLex import tokens
 from DirectorioProcedimientos import DirectorioProcedimientos
+import queue as Queue
 
 actualVarType = ''
 actualVarId = ''
 actualFunType = ''
 actualFunId = ''
 procedimientos = DirectorioProcedimientos()
+pOperandos = []
+pTipos = []
+pOperadores = []
 
 def p_PROGRAMA(p):
     '''programa : add_main_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES PRINCIPAL'''
@@ -134,27 +138,48 @@ def p_M_EXP(p):
     '''M_EXP : T M_EXP_AUX'''
 
 def p_M_EXP_AUX(p):
-    '''M_EXP_AUX : PLUS M_EXP
-    | MINUS M_EXP
+    '''M_EXP_AUX : PLUS add_plus_minus_operator M_EXP
+    | MINUS add_plus_minus_operator M_EXP
     | empty'''
+
+def p_add_plus_minus_operator(p):
+    '''add_plus_minus_operator : '''
+    pOperadores.append(p[-1])
 
 def p_T(p):
     '''T : F T_AUX'''
 
 def p_T_AUX(p):
-    '''T_AUX : MULTIPLICATION T
-    | DIVISION T
+    '''T_AUX : MULTIPLICATION add_mult_div_operator T
+    | DIVISION add_mult_div_operator T
     | empty'''
 
+def p_add_mult_div_operator(p):
+    '''add_mult_div_operator : '''
+    pOperadores.append(p[-1])
+
 def p_F(p):
-    '''F : L_PAREN EXPRESION R_PAREN
-    | CTE_INT
-    | CTE_FLOAT
-    | CTE_CHAR
-    | CTE_STRING
+    '''F : L_PAREN l_paren_expression EXPRESION R_PAREN r_paren_expression
+    | CTE_INT add_operando
+    | CTE_FLOAT add_operando
+    | CTE_CHAR add_operando
+    | CTE_STRING add_operando
     | VARIABLE
     | LLAMADA
     | IDENTIFIER MATRIZ_OP'''
+
+def p_l_paren_expression(p):
+    '''l_paren_expression : '''
+    print ("left paren")
+
+def p_r_paren_expression(p):
+    '''r_paren_expression : '''
+    print ("right paren")
+
+def p_add_operando(p):
+    '''add_operando : '''
+    pOperandos.append(p[-1])
+    pTipos.append(type(p[-1]))
 
 def p_MATRIZ_OP(p):
     '''MATRIZ_OP : TRANS
@@ -246,7 +271,7 @@ def p_add_var(p):
     global procedimientos
     global actualVarId
     actualVarId = p[-1]
-    print(actualFunId)
+    #print(actualFunId)
     if(procedimientos.search(actualFunId) == True):
         procedimientos.add_var(actualFunId, actualVarId, actualVarType)
     else:

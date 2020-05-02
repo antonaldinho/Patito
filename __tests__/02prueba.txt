@@ -9,7 +9,7 @@ var
 	float myFloat1, myFloat2;
 	int myMatrix[1];
 	{
-		a = 3; 
+		a = x + y + 3.2; 
 		b = 4; 
 
 		if (a<b) {
@@ -24,7 +24,6 @@ var
 		while (b > 6) do {
 			b = b - 1;
 		}
-
 		return 0;
 	}
 main() {
