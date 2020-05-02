@@ -135,3 +135,4 @@ dmypy.json
 *.out
 
 parsetab.py
+PatitoSyntax_test.py

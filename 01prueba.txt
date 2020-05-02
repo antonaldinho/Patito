@@ -1,8 +1,0 @@
-program prueba01;
-
-var float a;
-
-main ()
-{
-	a = 1078128172871.1;
-}

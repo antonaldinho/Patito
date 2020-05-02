@@ -1,0 +1,9 @@
+program prueba01;
+var
+	float a, b;
+	int x;
+
+main ()
+{
+	a = (9 - 7.8) * "lol";
+}

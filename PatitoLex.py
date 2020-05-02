@@ -80,7 +80,7 @@ t_COMMA = r'\,'
 # t_COMMENT = r'%%.*'
 # t_CTE_INT = r'[0-9][0-9]*'
 # t_CTE_FLOAT = r'(\+|-)?[0-9]*.[0-9][0-9]*?f'
-t_TRANS = r'¡'
+t_TRANS = r'%'
 t_DET = r'\$'
 t_INV = r'\?'
 
