@@ -8,10 +8,11 @@ actualVarType = ''
 actualVarId = ''
 actualFunType = ''
 actualFunId = ''
-procedimientos = DirectorioProcedimientos()
+procedures = DirectorioProcedimientos()
 pOperandos = []
 pTipos = []
 pOperadores = []
+cuadruplos = Queue.Queue()
 
 def p_PROGRAMA(p):
     '''programa : add_main_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES PRINCIPAL'''
@@ -23,8 +24,8 @@ def p_add_main_function(p):
     actualFunId = 'main'
     global actualFunType
     actualFunType = 'void'
-    global procedimientos
-    procedimientos.add_function(actualFunId, actualFunType, 0, [], [], 0)
+    global procedures
+    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0)
 
 def p_DECLARACIONES(p):
     '''DECLARACIONES : VAR DECLARACIONES_1
@@ -75,8 +76,8 @@ def p_save_func(p):
     '''save_func : '''
     global actualFunId
     actualFunId = p[-1]
-    global procedimientos
-    procedimientos.add_function(actualFunId, actualFunType, 0, [], [], 0)
+    global procedures
+    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0)
 
 def p_PARAMS(p):
     '''PARAMS : TIPO_VAR PARAMS_2
@@ -144,10 +145,24 @@ def p_M_EXP_AUX(p):
 
 def p_add_plus_minus_operator(p):
     '''add_plus_minus_operator : '''
+    global pOperadores
     pOperadores.append(p[-1])
 
 def p_T(p):
-    '''T : F T_AUX'''
+    '''T : F generate_mult_quad T_AUX'''
+
+def p_generate_mult_quad(p):
+    '''generate_mult_quad : '''
+    global pOperadores
+    global pOperandos
+    if(pOperadores[-1] == '*' or pOperadores[-1] == '/'):
+        op = pOperadores.pop()
+        operando_derecho = pOperandos.pop()
+        operando_derecho_type = pTipos.pop()
+        operando_izquierdo = pOperandos.pop()
+        operando_izquierdo_type = pTipos.pop()
+        
+
 
 def p_T_AUX(p):
     '''T_AUX : MULTIPLICATION add_mult_div_operator T
@@ -156,7 +171,9 @@ def p_T_AUX(p):
 
 def p_add_mult_div_operator(p):
     '''add_mult_div_operator : '''
+    global pOperadores
     pOperadores.append(p[-1])
+
 
 def p_F(p):
     '''F : L_PAREN l_paren_expression EXPRESION R_PAREN r_paren_expression
@@ -178,6 +195,8 @@ def p_r_paren_expression(p):
 
 def p_add_operando(p):
     '''add_operando : '''
+    global pOperandos
+    global pOperadores
     pOperandos.append(p[-1])
     pTipos.append(type(p[-1]))
 
@@ -268,12 +287,12 @@ def p_error(token):
 
 def p_add_var(p):
     '''add_var : '''
-    global procedimientos
+    global procedures
     global actualVarId
     actualVarId = p[-1]
     #print(actualFunId)
-    if(procedimientos.search(actualFunId) == True):
-        procedimientos.add_var(actualFunId, actualVarId, actualVarType)
+    if(procedures.search(actualFunId) == True):
+        procedures.add_var(actualFunId, actualVarId, actualVarType)
     else:
         print("Function does not exist.")
 
