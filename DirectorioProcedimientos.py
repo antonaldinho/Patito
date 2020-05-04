@@ -22,6 +22,15 @@ class DirectorioProcedimientos(object):
     def search(self, name):
         return name in self.list
     
+    def get_var_type(self, vName, fName):
+        if self.list[fName]['vars'].search(vName) == True:
+            return self.list[fName]['vars'].get_type(vName)
+        elif self.list['global']['vars'].search(vName) == True:
+            return self.list['global']['vars'].get_type(vName)
+        else:
+            print("Variable " + str(vName) +" does not exist")
+            return False
+    
     def add_var(self, fName, vName, vType):
         if(self.list[fName]['vars'].search(vName) == True):
             print("Variable already exists")

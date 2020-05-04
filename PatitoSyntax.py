@@ -3,6 +3,8 @@ import ply.yacc as yacc
 from PatitoLex import tokens
 from DirectorioProcedimientos import DirectorioProcedimientos
 import queue as Queue
+from cuboSemantico import cuboSemantico
+from Avail import Avail
 
 actualVarType = ''
 actualVarId = ''
@@ -13,10 +15,21 @@ pOperandos = []
 pTipos = []
 pOperadores = []
 cuadruplos = Queue.Queue()
+cubo = cuboSemantico()
+avail = Avail()
 
 def p_PROGRAMA(p):
-    '''programa : add_main_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES PRINCIPAL'''
+    '''programa : add_global_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES add_main_function PRINCIPAL'''
     p[0] = "PROGRAM COMPILED"
+
+def p_add_global_function(p):
+    '''add_global_function : '''
+    global actualFunId
+    actualFunId = 'global'
+    global actualFunType
+    actualFunType = 'void'
+    global procedures
+    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0)
 
 def p_add_main_function(p):
     '''add_main_function : '''
@@ -136,7 +149,30 @@ def p_COMPARADOR(p):
     | IS_DIFFERENT'''
 
 def p_M_EXP(p):
-    '''M_EXP : T M_EXP_AUX'''
+    '''M_EXP : T generate_sum_quad M_EXP_AUX'''
+
+def p_generate_sum_quad(p):
+    '''generate_sum_quad : '''
+    global pOperadores
+    if(len(pOperadores) > 0):
+        global pOperandos
+        if(pOperadores[-1] == '+' or pOperadores[-1] == '-'):
+            op = pOperadores.pop()
+            operando_derecho = pOperandos.pop()
+            operando_derecho_type = pTipos.pop()
+            operando_izquierdo = pOperandos.pop()
+            operando_izquierdo_type = pTipos.pop()
+            result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
+            if(result_type != 'error'):
+                result = avail.next()
+                quad = (op, operando_izquierdo, operando_derecho, result)
+                print('cuadruplo: ' + str(quad))
+                cuadruplos.put(quad)
+                pOperandos.append(result)
+                pTipos.append(result_type)
+            else:
+                print("type mismatch")
+                sys.exit()
 
 def p_M_EXP_AUX(p):
     '''M_EXP_AUX : PLUS add_plus_minus_operator M_EXP
@@ -147,6 +183,7 @@ def p_add_plus_minus_operator(p):
     '''add_plus_minus_operator : '''
     global pOperadores
     pOperadores.append(p[-1])
+    print('added operador: ' + str(p[-1]))
 
 def p_T(p):
     '''T : F generate_mult_quad T_AUX'''
@@ -154,14 +191,26 @@ def p_T(p):
 def p_generate_mult_quad(p):
     '''generate_mult_quad : '''
     global pOperadores
-    global pOperandos
-    if(pOperadores[-1] == '*' or pOperadores[-1] == '/'):
-        op = pOperadores.pop()
-        operando_derecho = pOperandos.pop()
-        operando_derecho_type = pTipos.pop()
-        operando_izquierdo = pOperandos.pop()
-        operando_izquierdo_type = pTipos.pop()
-        
+    if(len(pOperadores) > 0):
+        global pOperandos
+        if(pOperadores[-1] == '*' or pOperadores[-1] == '/'):
+            op = pOperadores.pop()
+            operando_derecho = pOperandos.pop()
+            operando_derecho_type = pTipos.pop()
+            operando_izquierdo = pOperandos.pop()
+            operando_izquierdo_type = pTipos.pop()
+            result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
+            if(result_type != 'error'):
+                result = avail.next()
+                quad = (op, operando_izquierdo, operando_derecho, result)
+                print('cuadruplo: ' + str(quad))
+                cuadruplos.put(quad)
+                pOperandos.append(result)
+                pTipos.append(result_type)
+            else:
+                print("type mismatch")
+                sys.exit()
+
 
 
 def p_T_AUX(p):
@@ -173,14 +222,15 @@ def p_add_mult_div_operator(p):
     '''add_mult_div_operator : '''
     global pOperadores
     pOperadores.append(p[-1])
+    print('added operador: ' + str(p[-1]))
 
 
 def p_F(p):
     '''F : L_PAREN l_paren_expression EXPRESION R_PAREN r_paren_expression
-    | CTE_INT add_operando
-    | CTE_FLOAT add_operando
-    | CTE_CHAR add_operando
-    | CTE_STRING add_operando
+    | CTE_INT add_operando_cte
+    | CTE_FLOAT add_operando_cte
+    | CTE_CHAR add_operando_char
+    | CTE_STRING add_operando_cte
     | VARIABLE
     | LLAMADA
     | IDENTIFIER MATRIZ_OP'''
@@ -193,12 +243,24 @@ def p_r_paren_expression(p):
     '''r_paren_expression : '''
     print ("right paren")
 
-def p_add_operando(p):
-    '''add_operando : '''
+def p_add_operando_cte(p):
+    '''add_operando_cte : '''
+    global pOperandos
+    global pOperadores
+    tipo = type(p[-1])
+    pOperandos.append(p[-1])
+    if tipo == int:
+        pTipos.append('int')
+    elif tipo == float:
+        pTipos.append('float')
+    print('added operando: ' + str(p[-1]))
+
+def p_add_operando_char(p):
+    '''add_operando_char : '''
     global pOperandos
     global pOperadores
     pOperandos.append(p[-1])
-    pTipos.append(type(p[-1]))
+    pTipos.append('char')
 
 def p_MATRIZ_OP(p):
     '''MATRIZ_OP : TRANS
@@ -206,7 +268,25 @@ def p_MATRIZ_OP(p):
     | DET'''
 
 def p_VARIABLE(p):
-    '''VARIABLE : IDENTIFIER DIMENSIONES'''
+    '''VARIABLE : IDENTIFIER add_operando_var DIMENSIONES'''
+
+def p_add_operando_var(p):
+    '''add_operando_var : '''
+    global pOperandos
+    global pOperadores
+    global actualFunId
+    var_id = p[-1]
+    tipo = procedures.get_var_type(var_id, actualFunId)
+    if tipo != False:
+        if tipo == 'int':
+            pTipos.append('int')
+        elif tipo == 'float':
+            pTipos.append('float')
+    else:
+        sys.exit()
+    pOperandos.append(var_id)
+    
+    print('added operando: ' + str(p[-1]))
 
 def p_LLAMADA(p):
     '''LLAMADA : IDENTIFIER L_PAREN LLAMADA_AUX R_PAREN SEMICOLON'''

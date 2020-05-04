@@ -1,5 +1,4 @@
 program prueba02;
-
 var 
 	float a, b;
 
@@ -7,9 +6,8 @@ function void funcion01 (int myParam, float myParam2)
 var
 	int x, y;
 	float myFloat1, myFloat2;
-	int myMatrix[1];
 	{
-		a = x + y + 3.2; 
+		a = x + y * 10 - 12; 
 		b = 4; 
 
 		if (a<b) {
@@ -18,7 +16,7 @@ var
 			a = 3;
 		}
 
-		print(c);
+		print(a);
 		read(a);
 
 		while (b > 6) do {
