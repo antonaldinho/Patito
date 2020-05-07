@@ -123,30 +123,71 @@ def p_DIMENSIONES_2(p):
     | empty'''
 
 def p_EXPRESION(p):
-    '''EXPRESION : T_EXP EXPRESION_AUX'''
+    '''EXPRESION : T_EXP generate_or_quad EXPRESION_AUX'''
+
+def p_generate_or_quad(p):
+    '''generate_or_quad : '''
+    global pOperadores
+    if(len(pOperadores) > 0):
+        if(pOperadores[-1] == '||'):
+            quad_generator()
 
 def p_EXPRESION_AUX(p):
-    '''EXPRESION_AUX : OR EXPRESION
+    '''EXPRESION_AUX : OR add_or_operator EXPRESION
     | empty'''
+
+def p_add_or_operator(p):
+	'''add_or_operator : '''
+	global pOperadores
+	pOperadores.append(p[-1])
+	print('added operador: ' + str(p[-1]))
 
 def p_T_EXP(p):
-    '''T_EXP : G_EXP T_EXP_AUX'''
+    '''T_EXP : G_EXP generate_and_quad T_EXP_AUX'''
+
+def p_generate_and_quad(p):
+    '''generate_and_quad : '''
+    global pOperadores
+    if(len(pOperadores) > 0):
+        if(pOperadores[-1] == '&&'):
+            quad_generator()
 
 def p_T_EXP_AUX(p):
-    '''T_EXP_AUX : AND T_EXP
+    '''T_EXP_AUX : AND add_and_operator T_EXP
     | empty'''
 
+def p_add_and_operator(p):
+    '''add_and_operator : '''
+    global pOperadores
+    pOperadores.append(p[-1])
+    print('added operator: ' + str(p[-1]))
+
 def p_G_EXP(p):
-    '''G_EXP : M_EXP
-    | M_EXP COMPARADOR M_EXP'''
+    '''G_EXP : M_EXP generate_comparator_quad
+    | M_EXP COMPARADOR M_EXP generate_comparator_quad'''
+
+def p_generate_comparator_quad(p):
+    '''generate_comparator_quad : '''
+    global pOperadores
+    if(len(pOperadores) > 0):
+        if(pOperadores[-1] == '<' or pOperadores[-1] == '>' 
+        or pOperadores[-1] == '<=' or pOperadores[-1] == '>='
+        or pOperadores[-1] == '==' or pOperadores[-1] == '!='):
+            quad_generator()
 
 def p_COMPARADOR(p):
-    '''COMPARADOR : LESS_THAN
-    | GREATER_THAN
-    | LESS_EQUAL_THAN
-    | GREATER_EQUAL_THAN
-    | IS_EQUAL
-    | IS_DIFFERENT'''
+    '''COMPARADOR : LESS_THAN add_comparator
+    | GREATER_THAN add_comparator
+    | LESS_EQUAL_THAN add_comparator
+    | GREATER_EQUAL_THAN add_comparator
+    | IS_EQUAL add_comparator
+    | IS_DIFFERENT add_comparator'''
+
+def p_add_comparator(p):
+    '''add_comparator : '''
+    global pOperadores
+    pOperadores.append(p[-1])
+    print('added operador: ' + str(p[-1]))
 
 def p_M_EXP(p):
     '''M_EXP : T generate_sum_quad M_EXP_AUX'''
@@ -155,24 +196,8 @@ def p_generate_sum_quad(p):
     '''generate_sum_quad : '''
     global pOperadores
     if(len(pOperadores) > 0):
-        global pOperandos
         if(pOperadores[-1] == '+' or pOperadores[-1] == '-'):
-            op = pOperadores.pop()
-            operando_derecho = pOperandos.pop()
-            operando_derecho_type = pTipos.pop()
-            operando_izquierdo = pOperandos.pop()
-            operando_izquierdo_type = pTipos.pop()
-            result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
-            if(result_type != 'error'):
-                result = avail.next()
-                quad = (op, operando_izquierdo, operando_derecho, result)
-                print('cuadruplo: ' + str(quad))
-                cuadruplos.put(quad)
-                pOperandos.append(result)
-                pTipos.append(result_type)
-            else:
-                print("type mismatch")
-                sys.exit()
+            quad_generator()
 
 def p_M_EXP_AUX(p):
     '''M_EXP_AUX : PLUS add_plus_minus_operator M_EXP
@@ -192,26 +217,8 @@ def p_generate_mult_quad(p):
     '''generate_mult_quad : '''
     global pOperadores
     if(len(pOperadores) > 0):
-        global pOperandos
         if(pOperadores[-1] == '*' or pOperadores[-1] == '/'):
-            op = pOperadores.pop()
-            operando_derecho = pOperandos.pop()
-            operando_derecho_type = pTipos.pop()
-            operando_izquierdo = pOperandos.pop()
-            operando_izquierdo_type = pTipos.pop()
-            result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
-            if(result_type != 'error'):
-                result = avail.next()
-                quad = (op, operando_izquierdo, operando_derecho, result)
-                print('cuadruplo: ' + str(quad))
-                cuadruplos.put(quad)
-                pOperandos.append(result)
-                pTipos.append(result_type)
-            else:
-                print("type mismatch")
-                sys.exit()
-
-
+            quad_generator()
 
 def p_T_AUX(p):
     '''T_AUX : MULTIPLICATION add_mult_div_operator T
@@ -375,6 +382,26 @@ def p_add_var(p):
         procedures.add_var(actualFunId, actualVarId, actualVarType)
     else:
         print("Function does not exist.")
+
+def quad_generator():
+    global pOperadores
+    global pOperandos
+    op = pOperadores.pop()
+    operando_derecho = pOperandos.pop()
+    operando_derecho_type = pTipos.pop()
+    operando_izquierdo = pOperandos.pop()
+    operando_izquierdo_type = pTipos.pop()
+    result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
+    if(result_type != 'error'):
+        result = avail.next()
+        quad = (op, operando_izquierdo, operando_derecho, result)
+        print('cuadruplo: ' + str(quad))
+        cuadruplos.put(quad)
+        pOperandos.append(result)
+        pTipos.append(result_type)
+    else:
+        print("type mismatch")
+        sys.exit()
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
