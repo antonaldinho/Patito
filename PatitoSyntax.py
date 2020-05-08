@@ -130,7 +130,7 @@ def p_generate_or_quad(p):
     global pOperadores
     if(len(pOperadores) > 0):
         if(pOperadores[-1] == '||'):
-            quad_generator()
+            quad_generator_4args()
 
 def p_EXPRESION_AUX(p):
     '''EXPRESION_AUX : OR add_or_operator EXPRESION
@@ -150,7 +150,7 @@ def p_generate_and_quad(p):
     global pOperadores
     if(len(pOperadores) > 0):
         if(pOperadores[-1] == '&&'):
-            quad_generator()
+            quad_generator_4args()
 
 def p_T_EXP_AUX(p):
     '''T_EXP_AUX : AND add_and_operator T_EXP
@@ -173,7 +173,7 @@ def p_generate_comparator_quad(p):
         if(pOperadores[-1] == '<' or pOperadores[-1] == '>' 
         or pOperadores[-1] == '<=' or pOperadores[-1] == '>='
         or pOperadores[-1] == '==' or pOperadores[-1] == '!='):
-            quad_generator()
+            quad_generator_4args()
 
 def p_COMPARADOR(p):
     '''COMPARADOR : LESS_THAN add_comparator
@@ -197,7 +197,7 @@ def p_generate_sum_quad(p):
     global pOperadores
     if(len(pOperadores) > 0):
         if(pOperadores[-1] == '+' or pOperadores[-1] == '-'):
-            quad_generator()
+            quad_generator_4args()
 
 def p_M_EXP_AUX(p):
     '''M_EXP_AUX : PLUS add_plus_minus_operator M_EXP
@@ -218,7 +218,7 @@ def p_generate_mult_quad(p):
     global pOperadores
     if(len(pOperadores) > 0):
         if(pOperadores[-1] == '*' or pOperadores[-1] == '/'):
-            quad_generator()
+            quad_generator_4args()
 
 def p_T_AUX(p):
     '''T_AUX : MULTIPLICATION add_mult_div_operator T
@@ -346,7 +346,23 @@ def p_ESCRITURA(p):
     'ESCRITURA : PRINT L_PAREN ESCRITURA_AUX R_PAREN SEMICOLON'
 
 def p_ESCRITURA_AUX(p):
-    'ESCRITURA_AUX : EXPRESION ESCRITURA_AUX_2'
+    'ESCRITURA_AUX : add_print_operator EXPRESION generate_print_quad ESCRITURA_AUX_2'
+
+def p_add_print_operator(p):
+	'''add_print_operator : '''
+	global pOperadores
+	if(p[-1] == ','):
+		pOperadores.append('print')
+	else:
+		pOperadores.append(p[-2])
+	print('added operator: ' + pOperadores[-1])
+
+def p_generate_print_quad(p):
+	'''generate_print_quad : '''
+	global pOperadores
+	if(len(pOperadores) > 0):
+		if(pOperadores[-1] == 'print'):
+			quad_generator_2args()
 
 def p_ESCRITURA_AUX_2(p):
     '''ESCRITURA_AUX_2 : COMMA ESCRITURA_AUX
@@ -383,9 +399,8 @@ def p_add_var(p):
     else:
         print("Function does not exist.")
 
-def quad_generator():
-    global pOperadores
-    global pOperandos
+def quad_generator_4args():
+    global pOperadores, pOperandos
     op = pOperadores.pop()
     operando_derecho = pOperandos.pop()
     operando_derecho_type = pTipos.pop()
@@ -402,6 +417,21 @@ def quad_generator():
     else:
         print("type mismatch")
         sys.exit()
+	
+def quad_generator_2args():
+	global pOperadores, pOperandos
+	op = pOperadores.pop()
+	operando = pOperandos.pop()
+	operando_type = pTipos.pop()
+	quad = (op, None, None, operando)
+	print('cuadruplo: ' + str(quad))
+	cuadruplos.put(quad)
+	pOperandos.append(operando)
+	pTipos.append(operando_type)
+
+def printCuadruplos():
+	for elem in list(cuadruplos.queue):
+		print(elem)
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -422,6 +452,7 @@ if __name__ == '__main__':
 			f.close()
 			if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
 				print ("Finished compiling")
+				printCuadruplos()
 
 		except EOFError:
 	   		print(EOFError)

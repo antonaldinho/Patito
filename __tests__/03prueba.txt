@@ -1,0 +1,18 @@
+program prueba01;
+var
+	float a, b;
+	int x;
+
+main ()
+{
+	a = 1;
+	b = 2;
+	read(x);
+	
+	if( a>b || a!=b && x<a) {
+		print (b*x);
+	} else {
+		print(a/x);
+	}
+	print(a, b, a+b, a>x);
+}
