@@ -372,7 +372,34 @@ def p_LECTURA(p):
     'LECTURA : READ L_PAREN LECTURA_AUX R_PAREN SEMICOLON'
 
 def p_LECTURA_AUX(p):
-    'LECTURA_AUX : IDENTIFIER DIMENSIONES LECTURA_AUX_2'
+    'LECTURA_AUX : add_read_operator IDENTIFIER add_id_read DIMENSIONES generate_read_quad LECTURA_AUX_2'
+
+def p_add_id_read(p):
+    '''add_id_read : '''
+    global actualVarId, procedures
+    actualVarId = p[-1]
+    if procedures.search_var(actualFunId, actualVarId):
+        pOperandos.append(actualVarId)
+        pTipos.append(procedures.get_var_type(actualVarId, actualFunId))
+        print("added operando: " + str(p[-1]))
+    else:
+        sys.exit()
+
+def p_add_read_operator(p):
+	'''add_read_operator : '''
+	global pOperadores
+	if(p[-1] == ','):
+		pOperadores.append('read')
+	else:
+		pOperadores.append(p[-2])
+	print('added operator: ' + pOperadores[-1])
+	
+def p_generate_read_quad(p):
+	'''generate_read_quad : '''
+	global pOperadores, pOperandos
+	if(len(pOperadores) > 0):
+		if(pOperadores[-1] == 'read'):
+			quad_generator_2args()
 
 def p_LECTURA_AUX_2(p):
     '''LECTURA_AUX_2 : COMMA LECTURA_AUX
