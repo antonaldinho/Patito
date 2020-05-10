@@ -21,7 +21,16 @@ class DirectorioProcedimientos(object):
     
     def search(self, name):
         return name in self.list
-    
+
+    def search_var(self, fName, vName):
+        if self.list[fName]['vars'].search(vName) == True:
+            return True
+        elif self.list['global']['vars'].search(vName):
+            return True
+        else:
+            return print("Variable " + str(vName) + " does not exist")
+            return False
+
     def get_var_type(self, vName, fName):
         if self.list[fName]['vars'].search(vName) == True:
             return self.list[fName]['vars'].get_type(vName)
