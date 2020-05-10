@@ -2,6 +2,14 @@ program prueba01;
 var
 	float a, b;
 	int x;
+	int rSanchez, r1, r2;
+
+function void f1() 
+var
+	int i, y;
+	{
+		read(i, rSanchez);
+	}
 
 main ()
 {
