@@ -113,7 +113,32 @@ def p_TIPO_FUNC(p):
     actualFunType = p[0]
 
 def p_ASIGNACION(p):
-    '''ASIGNACION : IDENTIFIER DIMENSIONES EQUALS EXPRESION SEMICOLON'''
+    '''ASIGNACION : IDENTIFIER add_id DIMENSIONES EQUALS add_equal_operator EXPRESION generate_equal_quad SEMICOLON'''
+
+def p_add_equal_operator(p):
+    '''add_equal_operator : '''
+    global pOperadores
+    pOperadores.append(p[-1])
+    print('added operator: ' + str(p[-1]))
+
+def p_generate_equal_quad(p):
+    '''generate_equal_quad : '''
+    global pOperadores, pOperandos, pTipos, cuadruplos
+    if(len(pOperadores) > 0):
+        if(pOperadores[-1] == '='):
+            op = pOperadores.pop()
+            operando_derecho = pOperandos.pop()
+            operando_derecho_type = pTipos.pop()
+            operando_izquierdo = pOperandos.pop()
+            operando_izquierdo_type = pTipos.pop()
+            result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
+            if result_type != 'error':
+                quad = (op, operando_izquierdo, None, operando_derecho)
+                print('cuadruplo: ' + str(quad))
+                cuadruplos.append(quad)
+            else:
+                print("Type missmatch")
+                sys.exit()     
 
 def p_DIMENSIONES(p):
     '''DIMENSIONES : L_SQ_BRACKET EXPRESION R_SQ_BRACKET DIMENSIONES_2
@@ -409,10 +434,10 @@ def p_LECTURA(p):
     'LECTURA : READ L_PAREN LECTURA_AUX R_PAREN SEMICOLON'
 
 def p_LECTURA_AUX(p):
-    'LECTURA_AUX : add_read_operator IDENTIFIER add_id_read DIMENSIONES generate_read_quad LECTURA_AUX_2'
+    'LECTURA_AUX : add_read_operator IDENTIFIER add_id DIMENSIONES generate_read_quad LECTURA_AUX_2'
 
-def p_add_id_read(p):
-    '''add_id_read : '''
+def p_add_id(p):
+    '''add_id : '''
     global actualVarId, procedures
     actualVarId = p[-1]
     if procedures.search_var(actualFunId, actualVarId):
@@ -464,7 +489,7 @@ def p_add_var(p):
         print("Function does not exist.")
 
 def quad_generator_4args():
-    global pOperadores, pOperandos
+    global pOperadores, pOperandos, pTipos, cuadruplos
     op = pOperadores.pop()
     operando_derecho = pOperandos.pop()
     operando_derecho_type = pTipos.pop()
@@ -483,7 +508,7 @@ def quad_generator_4args():
         sys.exit()
 	
 def quad_generator_2args():
-	global pOperadores, pOperandos
+	global pOperadores, pOperandos, pTipos, cuadruplos
 	op = pOperadores.pop()
 	operando = pOperandos.pop()
 	operando_type = pTipos.pop()
