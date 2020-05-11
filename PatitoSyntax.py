@@ -14,7 +14,8 @@ procedures = DirectorioProcedimientos()
 pOperandos = []
 pTipos = []
 pOperadores = []
-cuadruplos = Queue.Queue()
+pSaltos = []
+cuadruplos = []
 cubo = cuboSemantico()
 avail = Avail()
 
@@ -323,11 +324,48 @@ def p_BLOQUE_AUX(p):
     | empty'''
 
 def p_CONDICION(p):
-    '''CONDICION : IF L_PAREN EXPRESION R_PAREN BLOQUE CONDICION_AUX'''
+    '''CONDICION : IF L_PAREN EXPRESION R_PAREN add_if BLOQUE CONDICION_AUX add_end_if'''
+
+def p_add_if(p):
+    '''add_if : '''
+    global pTipos, pSaltos, cuadruplos
+    exp_type = pTipos.pop()
+    if (exp_type == 'bool'):
+        result = pOperandos.pop()
+        quad = ('GOTOF', result, None, -1)
+        cuadruplos.append(quad)
+        pSaltos.append(len(cuadruplos)-1)
+        print('cuadruplo: ' + str(quad))
+
+    else:
+        print("type mismatch")
+        sys.exit()
+
+def p_add_end_if(p):
+    '''add_end_if : '''
+    global pSaltos, cuadruplos
+    end = pSaltos.pop()
+    temp = list(cuadruplos[end])
+    temp[3] = len(cuadruplos)+1
+    cuadruplos[end] = tuple(temp)
+    print('cuadruplo: ' + str(cuadruplos[end]))
 
 def p_CONDICION_AUX(p):
-    '''CONDICION_AUX : ELSE BLOQUE
+    '''CONDICION_AUX : ELSE add_else BLOQUE
     | empty'''
+
+def p_add_else(p):
+    '''add_else : '''
+    global pSaltos, cuadruplos
+    quad = ('GOTO', None, None, -1)
+    cuadruplos.append(quad)
+    jump = pSaltos.pop()
+    pSaltos.append(len(cuadruplos)-1)
+
+    temp = list(cuadruplos[jump])
+    temp[3] = len(cuadruplos)+1
+    cuadruplos[jump] = tuple(temp)
+    print('cuadruplo: ' + str(quad))
 
 def p_ESTATUTO(p):
     '''ESTATUTO : ASIGNACION
@@ -438,7 +476,7 @@ def quad_generator_4args():
         result = avail.next()
         quad = (op, operando_izquierdo, operando_derecho, result)
         print('cuadruplo: ' + str(quad))
-        cuadruplos.put(quad)
+        cuadruplos.append(quad)
         pOperandos.append(result)
         pTipos.append(result_type)
     else:
@@ -452,13 +490,13 @@ def quad_generator_2args():
 	operando_type = pTipos.pop()
 	quad = (op, None, None, operando)
 	print('cuadruplo: ' + str(quad))
-	cuadruplos.put(quad)
+	cuadruplos.append(quad)
 	pOperandos.append(operando)
 	pTipos.append(operando_type)
 
 def printCuadruplos():
-	for elem in list(cuadruplos.queue):
-		print(elem)
+	for (i, elem) in enumerate(cuadruplos, start=1):
+		print(i, elem)
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
