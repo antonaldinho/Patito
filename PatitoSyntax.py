@@ -308,7 +308,24 @@ def p_LLAMADA_AUX_2(p):
     | empty'''
 
 def p_MIENTRAS(p):
-    '''MIENTRAS : WHILE L_PAREN EXPRESION R_PAREN DO BLOQUE'''
+    '''MIENTRAS : WHILE add_while_cond L_PAREN EXPRESION add_while_exp R_PAREN DO BLOQUE add_end_while'''
+
+def p_add_while_cond(p):
+    '''add_while_cond : '''
+    pSaltos.append(len(cuadruplos))
+
+def p_add_while_exp(p):
+    '''add_while_exp : '''
+    add_if_while()
+
+def p_add_end_while(p):
+    '''add_end_while : '''
+    global pSaltos, cuadruplos
+    end = pSaltos.pop()
+    jump = pSaltos.pop()
+    quad = ('GOTO', None, None, jump)
+    cuadruplos.append(quad)
+    fill_quad(end)
 
 def p_DESDE(p):
     '''DESDE : FROM IDENTIFIER DIMENSIONES UNTIL EXPRESION DO BLOQUE'''
@@ -328,27 +345,13 @@ def p_CONDICION(p):
 
 def p_add_if(p):
     '''add_if : '''
-    global pTipos, pSaltos, cuadruplos
-    exp_type = pTipos.pop()
-    if (exp_type == 'bool'):
-        result = pOperandos.pop()
-        quad = ('GOTOF', result, None, -1)
-        cuadruplos.append(quad)
-        pSaltos.append(len(cuadruplos)-1)
-        print('cuadruplo: ' + str(quad))
-
-    else:
-        print("type mismatch")
-        sys.exit()
+    add_if_while()
 
 def p_add_end_if(p):
     '''add_end_if : '''
     global pSaltos, cuadruplos
     end = pSaltos.pop()
-    temp = list(cuadruplos[end])
-    temp[3] = len(cuadruplos)+1
-    cuadruplos[end] = tuple(temp)
-    print('cuadruplo: ' + str(cuadruplos[end]))
+    fill_quad(end)
 
 def p_CONDICION_AUX(p):
     '''CONDICION_AUX : ELSE add_else BLOQUE
@@ -361,11 +364,7 @@ def p_add_else(p):
     cuadruplos.append(quad)
     jump = pSaltos.pop()
     pSaltos.append(len(cuadruplos)-1)
-
-    temp = list(cuadruplos[jump])
-    temp[3] = len(cuadruplos)+1
-    cuadruplos[jump] = tuple(temp)
-    print('cuadruplo: ' + str(quad))
+    fill_quad(jump)
 
 def p_ESTATUTO(p):
     '''ESTATUTO : ASIGNACION
@@ -494,8 +493,28 @@ def quad_generator_2args():
 	pOperandos.append(operando)
 	pTipos.append(operando_type)
 
+def add_if_while():
+    global pTipos, pSaltos, cuadruplos
+    exp_type = pTipos.pop()
+    if exp_type == 'bool':
+        result = pOperandos.pop()
+        quad = ('GOTOF', result, None, -1)
+        cuadruplos.append(quad)
+        pSaltos.append(len(cuadruplos)-1)
+        print('cuadruplo: ' + str(quad))
+    else: 
+        print("type mismatch")
+        sys.exit()
+    
+def fill_quad(i):
+    global cuadruplos
+    temp = list(cuadruplos[i])
+    temp[3] = len(cuadruplos)
+    cuadruplos[i] = tuple(temp)
+    print('cuadruplo: ' + str(cuadruplos[i]))
+
 def printCuadruplos():
-	for (i, elem) in enumerate(cuadruplos, start=1):
+	for (i, elem) in enumerate(cuadruplos):
 		print(i, elem)
 
 precedence = (
