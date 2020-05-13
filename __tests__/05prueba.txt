@@ -1,0 +1,39 @@
+program prueba01;
+var
+	int a, b;
+	int c;
+
+main ()
+{
+	a = 1;
+	b = 2;
+	c = 3;
+
+	
+    if(a>0) {
+        if(a<10) {
+            a=23;
+            b = 1 +1+a;
+            print(a,b,c);
+            while(b>20) do {
+                read(c);
+                print(c);
+            }
+        } else {
+            from (a=b+c) until (a>100) do {
+                while (c<1) do {
+                    a = a+1;
+                    if(10>20) {
+                        a = 40 + 40;
+                    } else {
+                        b = c;
+                    }
+                }
+            }
+        }
+        print("YA MERITO ACABA EL PROGRAMA");
+    } else {
+        print (a+1);
+    }
+    print("YA ACABAMOS EL PROGRAMA TIA");
+}
