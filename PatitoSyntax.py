@@ -333,18 +333,18 @@ def p_LLAMADA_AUX_2(p):
     | empty'''
 
 def p_MIENTRAS(p):
-    '''MIENTRAS : WHILE add_while_cond L_PAREN EXPRESION add_while_exp R_PAREN DO BLOQUE add_end_while'''
+    '''MIENTRAS : WHILE add_while_from_cond L_PAREN EXPRESION add_while_exp R_PAREN DO BLOQUE add_end_while_from'''
 
-def p_add_while_cond(p):
-    '''add_while_cond : '''
+def p_add_while_from_cond(p):
+    '''add_while_from_cond : '''
     pSaltos.append(len(cuadruplos))
 
 def p_add_while_exp(p):
     '''add_while_exp : '''
-    add_if_while()
+    add_if_while_from('GOTOF')
 
-def p_add_end_while(p):
-    '''add_end_while : '''
+def p_add_end_while_from(p):
+    '''add_end_while_from : '''
     global pSaltos, cuadruplos
     end = pSaltos.pop()
     jump = pSaltos.pop()
@@ -353,7 +353,14 @@ def p_add_end_while(p):
     fill_quad(end)
 
 def p_DESDE(p):
-    '''DESDE : FROM IDENTIFIER DIMENSIONES UNTIL EXPRESION DO BLOQUE'''
+    '''DESDE : FROM L_PAREN ASIGNACION_DESDE R_PAREN UNTIL add_while_from_cond L_PAREN EXPRESION add_from_exp R_PAREN DO BLOQUE add_end_while_from'''
+
+def p_add_from_exp(p):
+    '''add_from_exp : '''
+    add_if_while_from('GOTOV')
+
+def p_ASIGNACION_DESDE(p):
+    '''ASIGNACION_DESDE : IDENTIFIER add_id DIMENSIONES EQUALS add_equal_operator EXPRESION generate_equal_quad'''
 
 def p_PRINCIPAL(p):
     '''PRINCIPAL : MAIN L_PAREN R_PAREN BLOQUE'''
@@ -370,7 +377,7 @@ def p_CONDICION(p):
 
 def p_add_if(p):
     '''add_if : '''
-    add_if_while()
+    add_if_while_from('GOTOF')
 
 def p_add_end_if(p):
     '''add_end_if : '''
@@ -518,12 +525,12 @@ def quad_generator_2args():
 	pOperandos.append(operando)
 	pTipos.append(operando_type)
 
-def add_if_while():
+def add_if_while_from(goto):
     global pTipos, pSaltos, cuadruplos
     exp_type = pTipos.pop()
     if exp_type == 'bool':
         result = pOperandos.pop()
-        quad = ('GOTOF', result, None, -1)
+        quad = (goto, result, None, -1)
         cuadruplos.append(quad)
         pSaltos.append(len(cuadruplos)-1)
         print('cuadruplo: ' + str(quad))
