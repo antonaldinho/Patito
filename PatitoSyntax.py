@@ -119,7 +119,7 @@ def p_add_equal_operator(p):
     '''add_equal_operator : '''
     global pOperadores
     pOperadores.append(p[-1])
-    print('added operator: ' + str(p[-1]))
+    # print('added operator: ' + str(p[-1]))
 
 def p_generate_equal_quad(p):
     '''generate_equal_quad : '''
@@ -166,7 +166,7 @@ def p_add_or_operator(p):
 	'''add_or_operator : '''
 	global pOperadores
 	pOperadores.append(p[-1])
-	print('added operador: ' + str(p[-1]))
+	# print('added operador: ' + str(p[-1]))
 
 def p_T_EXP(p):
     '''T_EXP : G_EXP generate_and_quad T_EXP_AUX'''
@@ -186,7 +186,7 @@ def p_add_and_operator(p):
     '''add_and_operator : '''
     global pOperadores
     pOperadores.append(p[-1])
-    print('added operator: ' + str(p[-1]))
+    # print('added operator: ' + str(p[-1]))
 
 def p_G_EXP(p):
     '''G_EXP : M_EXP generate_comparator_quad
@@ -213,7 +213,7 @@ def p_add_comparator(p):
     '''add_comparator : '''
     global pOperadores
     pOperadores.append(p[-1])
-    print('added operador: ' + str(p[-1]))
+    # print('added operador: ' + str(p[-1]))
 
 def p_M_EXP(p):
     '''M_EXP : T generate_sum_quad M_EXP_AUX'''
@@ -234,7 +234,7 @@ def p_add_plus_minus_operator(p):
     '''add_plus_minus_operator : '''
     global pOperadores
     pOperadores.append(p[-1])
-    print('added operador: ' + str(p[-1]))
+    # print('added operador: ' + str(p[-1]))
 
 def p_T(p):
     '''T : F generate_mult_quad T_AUX'''
@@ -255,7 +255,7 @@ def p_add_mult_div_operator(p):
     '''add_mult_div_operator : '''
     global pOperadores
     pOperadores.append(p[-1])
-    print('added operador: ' + str(p[-1]))
+    # print('added operador: ' + str(p[-1]))
 
 
 def p_F(p):
@@ -286,7 +286,9 @@ def p_add_operando_cte(p):
         pTipos.append('int')
     elif tipo == float:
         pTipos.append('float')
-    print('added operando: ' + str(p[-1]))
+    elif tipo == str:
+        pTipos.append('string')
+    # print('added operando: ' + str(p[-1]))
 
 def p_add_operando_char(p):
     '''add_operando_char : '''
@@ -319,7 +321,7 @@ def p_add_operando_var(p):
         sys.exit()
     pOperandos.append(var_id)
     
-    print('added operando: ' + str(p[-1]))
+    # print('added operando: ' + str(p[-1]))
 
 def p_LLAMADA(p):
     '''LLAMADA : IDENTIFIER L_PAREN LLAMADA_AUX R_PAREN SEMICOLON'''
@@ -424,7 +426,7 @@ def p_add_print_operator(p):
 		pOperadores.append('print')
 	else:
 		pOperadores.append(p[-2])
-	print('added operator: ' + pOperadores[-1])
+	# print('added operator: ' + pOperadores[-1])
 
 def p_generate_print_quad(p):
 	'''generate_print_quad : '''
@@ -450,7 +452,7 @@ def p_add_id(p):
     if procedures.search_var(actualFunId, actualVarId):
         pOperandos.append(actualVarId)
         pTipos.append(procedures.get_var_type(actualVarId, actualFunId))
-        print("added operando: " + str(p[-1]))
+        # print("added operando: " + str(p[-1]))
     else:
         sys.exit()
 
@@ -461,7 +463,7 @@ def p_add_read_operator(p):
 		pOperadores.append('read')
 	else:
 		pOperadores.append(p[-2])
-	print('added operator: ' + pOperadores[-1])
+	# print('added operator: ' + pOperadores[-1])
 	
 def p_generate_read_quad(p):
 	'''generate_read_quad : '''

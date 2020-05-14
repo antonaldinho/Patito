@@ -14,7 +14,7 @@ class cuboSemantico ():
 					'+' : 'float', '-' : 'float', '*' : 'float', '/' : 'float',
 					'<' : 'bool', '>' : 'bool', '<=' : 'bool', '>=' : 'bool', '==' : 'bool', '!=' : 'bool',
 					'||' : 'error', '&&': 'error',
-					'=' : 'error',
+					'=' : 'int',
 				},
 				'char' : { #int op char
 					'+' : 'error', '-' : 'error', '*' : 'error', '/' : 'error',
@@ -36,7 +36,7 @@ class cuboSemantico ():
 					'+' : 'float', '-' : 'float', '*' : 'float', '/' : 'float',
 					'<' : 'bool', '>' : 'bool', '<=' : 'bool', '>=' : 'bool', '==' : 'bool', '!=' : 'bool',
 					'||' : 'error', '&&': 'error',
-					'=' : 'error',
+					'=' : 'float',
 				},
 				'float' : { #float op float
 					'+' : 'float', '-' : 'float', '*' : 'float', '/' : 'float',

@@ -28,7 +28,7 @@ class DirectorioProcedimientos(object):
         elif self.list['global']['vars'].search(vName):
             return True
         else:
-            return print("Variable " + str(vName) + " does not exist")
+            print("Variable " + str(vName) + " does not exist")
             return False
 
     def get_var_type(self, vName, fName):
