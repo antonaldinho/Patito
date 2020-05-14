@@ -85,15 +85,14 @@ t_DET = r'\$'
 t_INV = r'\?'
 
 def t_CTE_FLOAT(t):
-    r'(\+|-)?[0-9]+(\.[0-9]+)?'
+    r'\[-+]?\d+|(\.\d+|\d+\.\d+)([eE][-+]?\d+)?'
     t.value = float(t.value)
     return t
-
+    
 def t_CTE_INT(t):
     r'\d+'
     t.value = int(t.value)
     return t
-
 
 def t_CTE_CHAR(t):
     r'\'[A-Za-z]\''

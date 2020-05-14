@@ -1,0 +1,26 @@
+program prueba01;
+var
+	float a, b;
+	int x;
+	int rSanchez, r1, r2;
+
+function void f1() 
+var
+	int i, y;
+	{
+		read(i, rSanchez);
+	}
+
+main ()
+{
+	a = 1;
+	b = 2;
+	read(x);
+	
+	if( a>b || a!=b && x<a) {
+		print (b*x);
+	} else {
+		print(a/x);
+	}
+	print(a, b, a+b, a>x);
+}

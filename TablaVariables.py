@@ -11,6 +11,9 @@ class TablaVariables(object):
     def search(self, name):
         return name in self.list.keys()
     
+    def get_type(self, name):
+        return self.list[name]['type']
+
     def print_all_vars(self):
         print(self.list.items())
         
