@@ -19,6 +19,21 @@ cuadruplos = []
 cubo = cuboSemantico()
 avail = Avail()
 
+#direcciones de memoria virtual para variables
+virtualMemoryDirs = {
+    'globalint': 1000,
+    'globalfloat': 3000,
+    'globalchar': 5000,
+    'localint': 7000,
+    'localfloat': 7000,
+    'localchar': 9000,
+    'tempint': 11000,
+    'tempfloat': 13000,
+    'tempchar': 15000,
+}
+
+isGlobal = True
+
 def p_PROGRAMA(p):
     '''programa : add_global_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES add_main_function PRINCIPAL'''
     p[0] = "PROGRAM COMPILED"
@@ -83,8 +98,13 @@ def p_save_type(p):
     actualVarType = p[-1]
 
 def p_FUNCIONES(p):
-    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER save_func L_PAREN PARAMS R_PAREN DECLARACIONES BLOQUE FUNCIONES
+    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER save_func L_PAREN PARAMS R_PAREN is_local DECLARACIONES BLOQUE FUNCIONES
     | empty'''
+
+def p_is_local(p):
+    '''is_local : '''
+    global isGlobal
+    isGlobal = False
 
 def p_save_func(p):
     '''save_func : '''
@@ -134,11 +154,12 @@ def p_generate_equal_quad(p):
             result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
             if result_type != 'error':
                 quad = (op, operando_izquierdo, None, operando_derecho)
-                print('cuadruplo: ' + str(quad))
+                #print('cuadruplo: ' + str(quad))
                 cuadruplos.append(quad)
+                create_new_avail()
             else:
                 print("Type missmatch")
-                sys.exit()     
+                sys.exit()
 
 def p_DIMENSIONES(p):
     '''DIMENSIONES : L_SQ_BRACKET EXPRESION R_SQ_BRACKET DIMENSIONES_2
@@ -270,11 +291,9 @@ def p_F(p):
 
 def p_l_paren_expression(p):
     '''l_paren_expression : '''
-    print ("left paren")
 
 def p_r_paren_expression(p):
     '''r_paren_expression : '''
-    print ("right paren")
 
 def p_add_operando_cte(p):
     '''add_operando_cte : '''
@@ -310,16 +329,16 @@ def p_add_operando_var(p):
     global pOperandos
     global pOperadores
     global actualFunId
-    var_id = p[-1]
-    tipo = procedures.get_var_type(var_id, actualFunId)
-    if tipo != False:
+    varId = p[-1]
+    if(procedures.search_var(actualFunId, varId)):
+        tipo = procedures.get_var_type(actualFunId, varId)
         if tipo == 'int':
             pTipos.append('int')
         elif tipo == 'float':
             pTipos.append('float')
-    else:
-        sys.exit()
-    pOperandos.append(var_id)
+        elif tipo == 'char':
+            pTipos.append('char')
+        pOperandos.append(procedures.get_var_memory_loc(actualFunId, varId))
     
     # print('added operando: ' + str(p[-1]))
 
@@ -450,8 +469,8 @@ def p_add_id(p):
     global actualVarId, procedures
     actualVarId = p[-1]
     if procedures.search_var(actualFunId, actualVarId):
-        pOperandos.append(actualVarId)
-        pTipos.append(procedures.get_var_type(actualVarId, actualFunId))
+        pOperandos.append(procedures.get_var_memory_loc(actualFunId, actualVarId))
+        pTipos.append(procedures.get_var_type(actualFunId, actualVarId))
         # print("added operando: " + str(p[-1]))
     else:
         sys.exit()
@@ -490,12 +509,21 @@ def p_add_var(p):
     '''add_var : '''
     global procedures
     global actualVarId
+    global virtualMemoryDirs
     actualVarId = p[-1]
     #print(actualFunId)
+    # print(virtualMemoryDirs['globalint'])
     if(procedures.search(actualFunId) == True):
-        procedures.add_var(actualFunId, actualVarId, actualVarType)
+        memoryType = ''
+        if isGlobal:
+            memoryType = 'global' + actualVarType
+        else:
+            memoryType = 'local' + actualVarType
+        procedures.add_var(actualFunId, actualVarId, actualVarType, virtualMemoryDirs[memoryType])
+        virtualMemoryDirs[memoryType] = virtualMemoryDirs[memoryType] + 1
     else:
         print("Function does not exist.")
+        sys.exit()
 
 def quad_generator_4args():
     global pOperadores, pOperandos, pTipos, cuadruplos
@@ -508,7 +536,7 @@ def quad_generator_4args():
     if(result_type != 'error'):
         result = avail.next()
         quad = (op, operando_izquierdo, operando_derecho, result)
-        print('cuadruplo: ' + str(quad))
+        #print('cuadruplo: ' + str(quad))
         cuadruplos.append(quad)
         pOperandos.append(result)
         pTipos.append(result_type)
@@ -517,15 +545,16 @@ def quad_generator_4args():
         sys.exit()
 	
 def quad_generator_2args():
-	global pOperadores, pOperandos, pTipos, cuadruplos
-	op = pOperadores.pop()
-	operando = pOperandos.pop()
-	operando_type = pTipos.pop()
-	quad = (op, None, None, operando)
-	print('cuadruplo: ' + str(quad))
-	cuadruplos.append(quad)
-	pOperandos.append(operando)
-	pTipos.append(operando_type)
+    global pOperadores, pOperandos, pTipos, cuadruplos
+    op = pOperadores.pop()
+    operando = pOperandos.pop()
+    operando_type = pTipos.pop()
+    quad = (op, None, None, operando)
+    #print('cuadruplo: ' + str(quad))
+    cuadruplos.append(quad)
+    pOperandos.append(operando)
+    pTipos.append(operando_type)
+    create_new_avail()
 
 def add_if_while_from(goto):
     global pTipos, pSaltos, cuadruplos
@@ -535,7 +564,7 @@ def add_if_while_from(goto):
         quad = (goto, result, None, -1)
         cuadruplos.append(quad)
         pSaltos.append(len(cuadruplos)-1)
-        print('cuadruplo: ' + str(quad))
+        #print('cuadruplo: ' + str(quad))
     else: 
         print("type mismatch")
         sys.exit()
@@ -545,11 +574,16 @@ def fill_quad(i):
     temp = list(cuadruplos[i])
     temp[3] = len(cuadruplos)
     cuadruplos[i] = tuple(temp)
-    print('cuadruplo: ' + str(cuadruplos[i]))
+    #print('cuadruplo: ' + str(cuadruplos[i]))
 
 def printCuadruplos():
 	for (i, elem) in enumerate(cuadruplos):
 		print(i, elem)
+
+# Function for resetting the avail
+def create_new_avail():
+    global avail
+    avail = Avail()
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),

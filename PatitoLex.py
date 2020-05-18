@@ -96,6 +96,7 @@ def t_CTE_INT(t):
 
 def t_CTE_CHAR(t):
     r'\'[A-Za-z]\''
+    t.value = t.value[1]
     return t
 
 

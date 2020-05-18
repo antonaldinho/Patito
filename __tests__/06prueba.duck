@@ -1,8 +1,5 @@
 program prueba01;
 var
-	int a, b;
-	int c;
-	char lol;
 	float result;
 
 function float myFunction (int param1)
@@ -16,15 +13,6 @@ var float f1, f2;
 
 main ()
 {
-	a = 1 * 2;
-	b = (2 +4) / 8;
-	c = b + a;
-	lol = 'D';
-	while (a < c) do {
-		b = b+1;
-		a = a + 1;
-		print(b);
-		print(1+2+3);
-	} 
-	a = a+b+c;
+	result = myFunction(10);
+    return 0;
 }

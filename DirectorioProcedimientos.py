@@ -1,6 +1,6 @@
 from TablaVariables import TablaVariables
 import getopt
-
+import sys
 class DirectorioProcedimientos(object):
     def __init__(self):
         self.list = {}
@@ -31,20 +31,30 @@ class DirectorioProcedimientos(object):
             print("Variable " + str(vName) + " does not exist")
             return False
 
-    def get_var_type(self, vName, fName):
+    def get_var_type(self, fName, vName):
         if self.list[fName]['vars'].search(vName) == True:
             return self.list[fName]['vars'].get_type(vName)
         elif self.list['global']['vars'].search(vName) == True:
             return self.list['global']['vars'].get_type(vName)
         else:
             print("Variable " + str(vName) +" does not exist")
-            return False
+            sys.exit()
     
-    def add_var(self, fName, vName, vType):
+    def get_var_memory_loc(self, fName, vName):
+        if self.list[fName]['vars'].search(vName) == True:
+            return self.list[fName]['vars'].get_memory_loc(vName)
+        elif self.list['global']['vars'].search(vName) == True:
+            return self.list['global']['vars'].get_memory_loc(vName)
+        else:
+            print("Variable " + str(vName) +" does not exist")
+            sys.exit()
+    
+    def add_var(self, fName, vName, vType, vMemoryLoc):
         if(self.list[fName]['vars'].search(vName) == True):
             print("Variable already exists")
+            sys.exit()
         else:
-            self.list[fName]['vars'].add_var(vName, vType)
+            self.list[fName]['vars'].add_var(vName, vType, vMemoryLoc)
     
     def list_vars(self, name):
         if name in self.list:
@@ -54,9 +64,9 @@ if __name__ == "__main__":
     print("calando tests...")
     test = DirectorioProcedimientos()
     test.add_function('function1', 'void', 2, ['int', 'float'], ['myInt', 'myFloat'], 0)
-    test.add_var('function1', 'x', int)
-    test.add_var('function1', 'y', int)
-    test.add_var('function1', 'z', int)
-    test.add_var('function1', 'b', bool)
+    test.add_var('function1', 'x', int, 100)
+    test.add_var('function1', 'y', int, 101)
+    test.add_var('function1', 'z', int, 102)
+    test.add_var('function1', 'b', bool, 103)
     print(test.search('function1'))
     test.list_vars('function1')
