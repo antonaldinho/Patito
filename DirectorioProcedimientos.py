@@ -32,6 +32,9 @@ class DirectorioProcedimientos(object):
             print("Variable " + str(vName) + " does not exist")
             return False
 
+    def get_function_type(self, fName):
+        return self.list[fName]['type']
+
     def get_var_type(self, fName, vName):
         if self.list[fName]['vars'].search(vName) == True:
             return self.list[fName]['vars'].get_type(vName)
@@ -50,6 +53,15 @@ class DirectorioProcedimientos(object):
             print("Variable " + str(vName) +" does not exist")
             sys.exit()
     
+    def get_parameter_type(self, fName, pos):
+        return self.list[fName]['typeParams'][pos]
+
+    def get_numParams(self, fName):
+        return self.list[fName]['numParams']
+
+    def get_quad_num(self, fName):
+        return self.list[fName]['quadNum']
+
     def add_var(self, fName, vName, vType, vMemoryLoc):
         if(self.list[fName]['vars'].search(vName) == True):
             print("Variable already exists")

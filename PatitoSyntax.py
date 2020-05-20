@@ -19,6 +19,7 @@ cuadruplos = []
 cubo = cuboSemantico()
 avail = Avail()
 temporales = {}
+kParams = 1
 
 #direcciones de memoria virtual para variables
 virtualMemoryDirs = {
@@ -374,22 +375,78 @@ def p_add_operando_var(p):
     # print('added operando: ' + str(p[-1]))
 
 def p_LLAMADA(p):
-    '''LLAMADA : IDENTIFIER search_func L_PAREN LLAMADA_AUX R_PAREN SEMICOLON'''
+    '''LLAMADA : IDENTIFIER search_func L_PAREN generate_era_quad LLAMADA_AUX verify_params R_PAREN SEMICOLON generate_gosub_quad'''
 
+# Verify that function called already exits
 def p_search_func(p):
     '''search_func : '''
-    func = p[-1]
-    if(not procedures.search(func)):
-        print("Procedure not found")
+    global actualVarId, actualVarType
+    actualVarId = p[-1]
+    if(not procedures.search(actualVarId)):
+        print("Procedure '", actualVarId, "' not found")
+        sys.exit()
+    actualVarType = procedures.get_function_type(actualVarId)
+
+# Generate ERA quad 
+def p_generate_era_quad(p):
+    '''generate_era_quad : '''
+    global kParams, actualVarId
+    quad = ('ERA', None, None, actualVarId)
+    cuadruplos.append(quad)
+    kParams = 1
+
+# Verify kParams matches the actual # of parameters defined 
+def p_verify_params(p):
+    '''verify_params : '''
+    global kParams, actualVarId
+    if (kParams != procedures.get_numParams(actualVarId)):
+        print("Error in parameters, function calling:", actualVarId)
         sys.exit()
 
+# Generate GOSUB quad
+def p_generate_gosub_quad(p):
+    '''generate_gosub_quad : '''
+    global actualVarId
+    quad = ('GOSUB', actualVarId, None, procedures.get_quad_num(actualVarId))
+    cuadruplos.append(quad)
+
 def p_LLAMDA_AUX(p):
-    '''LLAMADA_AUX : EXPRESION LLAMADA_AUX_2
-    | empty'''
+    '''LLAMADA_AUX : EXPRESION generate_quad_parameter LLAMADA_AUX_2
+    | empty set_k_cero'''
+
+# Expression receives 0 arguments
+def p_set_k_cero(p):
+    '''set_k_cero : '''
+    global kParams
+    kParams = 0
+
+# Generate quad for parameters
+def p_add_paramater(p):
+    '''generate_quad_parameter : '''
+    global pOperandos, pTipos, kParams
+    currentArg = pOperandos.pop()
+    currentArgType = pTipos.pop()
+    # Verify if kParams hasn't passed the number of parameters defined
+    if (kParams <= procedures.get_numParams(actualVarId)):
+        argumentType = procedures.get_parameter_type(actualVarId, kParams-1)
+        if (currentArgType != argumentType):
+            print("Parameter type mismatch, calling function:", actualVarId)
+            sys.exit()
+        quad = ('PARAMETER', currentArg, None, kParams)
+        cuadruplos.append(quad)
+    else:
+        print("Error in parameters, calling function:", actualVarId)
+        sys.exit()
 
 def p_LLAMADA_AUX_2(p):
-    '''LLAMADA_AUX_2 : COMMA LLAMADA_AUX
+    '''LLAMADA_AUX_2 : sum_kParams COMMA LLAMADA_AUX
     | empty'''
+
+# kParams + 1 when receives more parameters
+def p_add_kParams(p):
+    '''sum_kParams : '''
+    global kParams
+    kParams = kParams + 1
 
 def p_MIENTRAS(p):
     '''MIENTRAS : WHILE add_while_from_cond L_PAREN EXPRESION add_while_exp R_PAREN DO BLOQUE add_end_while_from'''
