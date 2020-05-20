@@ -5,7 +5,7 @@ class DirectorioProcedimientos(object):
     def __init__(self):
         self.list = {}
     
-    def add_function(self, name, fType, numParams, typeParams, nameParams, numVars):
+    def add_function(self, name, fType, numParams, typeParams, nameParams, numVars, quad):
         if(name not in self.list.keys()):
             self.list[name] = {
                 'type': fType,
@@ -13,7 +13,8 @@ class DirectorioProcedimientos(object):
                 'typeParams': typeParams,
                 'nameParams': nameParams,
                 'vars': TablaVariables(),
-                'numVars': numVars
+                'numVars': numVars,
+                'quadNum': quad
             }
             #print("added function: " + name)
         else:
@@ -55,10 +56,26 @@ class DirectorioProcedimientos(object):
             sys.exit()
         else:
             self.list[fName]['vars'].add_var(vName, vType, vMemoryLoc)
+            self.list[fName]['numVars'] = self.list[fName]['numVars'] + 1
     
+    def add_param(self, fName, vName, vType):
+        self.list[fName]['numParams'] = self.list[fName]['numParams'] + 1
+        self.list[fName]['nameParams'].append(vName)
+        self.list[fName]['typeParams'].append(vType)
+    
+    def add_quad_counter(self, fName, quad):
+        self.list[fName]['quadNum'] = quad
+
     def list_vars(self, name):
         if name in self.list:
             self.list[name]['vars'].print_all_vars()
+
+    def print_proc(self):
+        for (elem) in (self.list):
+            print(elem)
+            self.list_vars(elem)
+        
+        print(self.list)
 
 if __name__ == "__main__":
     print("calando tests...")

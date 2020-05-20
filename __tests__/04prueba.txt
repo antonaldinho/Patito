@@ -5,7 +5,7 @@ var
 	char lol;
 	float result;
 
-function float myFunction (int param1)
+function float myFunction (int param1, int param2, int param3, float p4)
 var float f1, f2;
 {
 	f1 = 10.2;
@@ -14,12 +14,23 @@ var float f1, f2;
 	return param1;
 }
 
+function int suma (int p1)
+var int s1;
+{
+    s1 = 1;
+	return p1 + s1;
+}
 main ()
 {
 	a = 1 * 2;
 	b = (2 +4) / 8;
 	c = b + a;
 	lol = 'D';
+
+    myFunctionS(a, b, c);
+    result = a*b*c;
+    suma(result);
+
 	while (a < c) do {
 		b = b+1;
 		a = a + 1;

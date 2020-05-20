@@ -45,7 +45,7 @@ def p_add_global_function(p):
     global actualFunType
     actualFunType = 'void'
     global procedures
-    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0)
+    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0, None)
 
 def p_add_main_function(p):
     '''add_main_function : '''
@@ -54,7 +54,7 @@ def p_add_main_function(p):
     global actualFunType
     actualFunType = 'void'
     global procedures
-    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0)
+    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0, None)
 
 def p_DECLARACIONES(p):
     '''DECLARACIONES : VAR DECLARACIONES_1
@@ -98,7 +98,7 @@ def p_save_type(p):
     actualVarType = p[-1]
 
 def p_FUNCIONES(p):
-    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER save_func L_PAREN PARAMS R_PAREN is_local DECLARACIONES BLOQUE FUNCIONES
+    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER save_func L_PAREN PARAMS R_PAREN is_local DECLARACIONES add_quad_counter BLOQUE release_func FUNCIONES
     | empty'''
 
 def p_is_local(p):
@@ -111,14 +111,28 @@ def p_save_func(p):
     global actualFunId
     actualFunId = p[-1]
     global procedures
-    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0)
+    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0, None)
+
+def p_add_quad_counter(p):
+    '''add_quad_counter : '''
+    procedures.add_quad_counter(actualFunId, len(cuadruplos))
+
+def p_release_func(p):
+    '''release_func : '''
+    # Release the current VarTable (local).
+    # Generate an action to end the function (ENDFunc).
+    # Insert into DirFunc the number of temporal vars used.
 
 def p_PARAMS(p):
     '''PARAMS : TIPO_VAR PARAMS_2
     | empty'''
 
 def p_PARAMS_2(p):
-    '''PARAMS_2 : IDENTIFIER add_var PARAMS_3'''
+    '''PARAMS_2 : IDENTIFIER add_var add_param PARAMS_3'''
+
+def p_add_param(p):
+    '''add_param : '''
+    procedures.add_param(actualFunId, actualVarId, actualVarType)
 
 def p_PARAMS_3(p):
     '''PARAMS_3 : COMMA PARAMS
@@ -343,7 +357,14 @@ def p_add_operando_var(p):
     # print('added operando: ' + str(p[-1]))
 
 def p_LLAMADA(p):
-    '''LLAMADA : IDENTIFIER L_PAREN LLAMADA_AUX R_PAREN SEMICOLON'''
+    '''LLAMADA : IDENTIFIER search_func L_PAREN LLAMADA_AUX R_PAREN SEMICOLON'''
+
+def p_search_func(p):
+    '''search_func : '''
+    func = p[-1]
+    if(not procedures.search(func)):
+        print("Procedure not found")
+        sys.exit()
 
 def p_LLAMDA_AUX(p):
     '''LLAMADA_AUX : EXPRESION LLAMADA_AUX_2
@@ -577,8 +598,9 @@ def fill_quad(i):
     #print('cuadruplo: ' + str(cuadruplos[i]))
 
 def printCuadruplos():
-	for (i, elem) in enumerate(cuadruplos):
-		print(i, elem)
+    for (i, elem) in enumerate(cuadruplos):
+        print(i, elem)
+    procedures.print_proc() 
 
 # Function for resetting the avail
 def create_new_avail():
