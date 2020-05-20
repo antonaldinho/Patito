@@ -66,6 +66,9 @@ class DirectorioProcedimientos(object):
     def add_quad_counter(self, fName, quad):
         self.list[fName]['quadNum'] = quad
 
+    def delete_var_table(self, fName):
+        self.list[fName]['vars'] = None
+
     def list_vars(self, name):
         if name in self.list:
             self.list[name]['vars'].print_all_vars()

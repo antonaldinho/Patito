@@ -18,6 +18,7 @@ pSaltos = []
 cuadruplos = []
 cubo = cuboSemantico()
 avail = Avail()
+temporales = {}
 
 #direcciones de memoria virtual para variables
 virtualMemoryDirs = {
@@ -25,11 +26,15 @@ virtualMemoryDirs = {
     'globalfloat': 3000,
     'globalchar': 5000,
     'localint': 7000,
-    'localfloat': 7000,
-    'localchar': 9000,
-    'tempint': 11000,
-    'tempfloat': 13000,
-    'tempchar': 15000,
+    'localfloat': 9000,
+    'localchar': 11000,
+    'tempint': 13000,
+    'tempfloat': 15000,
+    'tempchar': 17000,
+    'tempbool': 19000,
+    'constint': 21000,
+    'constfloat': 23000,
+    'constchar': 25000,
 }
 
 isGlobal = True
@@ -98,7 +103,7 @@ def p_save_type(p):
     actualVarType = p[-1]
 
 def p_FUNCIONES(p):
-    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER save_func L_PAREN PARAMS R_PAREN is_local DECLARACIONES add_quad_counter BLOQUE release_func FUNCIONES
+    '''FUNCIONES : FUNCTION TIPO_FUNC IDENTIFIER save_func L_PAREN is_local PARAMS R_PAREN DECLARACIONES add_quad_counter BLOQUE release_func FUNCIONES
     | empty'''
 
 def p_is_local(p):
@@ -120,7 +125,18 @@ def p_add_quad_counter(p):
 def p_release_func(p):
     '''release_func : '''
     # Release the current VarTable (local).
+    create_new_avail()
+    virtualMemoryDirs['localint'] = 7000
+    virtualMemoryDirs['localfloat'] = 9000
+    virtualMemoryDirs['localchar'] = 11000
+    virtualMemoryDirs['tempint'] = 13000
+    virtualMemoryDirs['tempfloat'] = 15000
+    virtualMemoryDirs['tempchar'] = 17000
+    virtualMemoryDirs['tempbool'] = 19000
+    procedures.delete_var_table(actualFunId)
     # Generate an action to end the function (ENDFunc).
+    quad = ('ENDPROC', -1, -1, -1)
+    cuadruplos.append(quad)
     # Insert into DirFunc the number of temporal vars used.
 
 def p_PARAMS(p):
@@ -132,6 +148,7 @@ def p_PARAMS_2(p):
 
 def p_add_param(p):
     '''add_param : '''
+    # For parametric signature
     procedures.add_param(actualFunId, actualVarId, actualVarType)
 
 def p_PARAMS_3(p):
@@ -144,7 +161,7 @@ def p_TIPO_FUNC(p):
     | CHAR
     | VOID'''
     global actualFunType
-    actualFunType = p[0]
+    actualFunType = p[1]
 
 def p_ASIGNACION(p):
     '''ASIGNACION : IDENTIFIER add_id DIMENSIONES EQUALS add_equal_operator EXPRESION generate_equal_quad SEMICOLON'''
@@ -170,7 +187,7 @@ def p_generate_equal_quad(p):
                 quad = (op, operando_izquierdo, None, operando_derecho)
                 #print('cuadruplo: ' + str(quad))
                 cuadruplos.append(quad)
-                create_new_avail()
+                #create_new_avail()
             else:
                 print("Type missmatch")
                 sys.exit()
@@ -451,7 +468,27 @@ def p_ESTATUTO(p):
     | REGRESO'''
 
 def p_REGRESO(p):
-    '''REGRESO : RETURN EXPRESION SEMICOLON'''
+    '''REGRESO : RETURN add_return_op EXPRESION add_return_quad SEMICOLON'''
+
+def p_add_return_op(p):
+    '''add_return_op : '''
+    global pOperadores
+    pOperadores.append('RETURN')
+
+def p_add_return_quad(p):
+    '''add_return_quad : '''
+    global pOperadores, pOperandos, pTipos, cuadruplos, actualFunId
+    if(len(pOperadores) > 0):
+        if(pOperadores[-1] == 'RETURN'):
+            op = pOperadores.pop()
+            resultado = pOperandos.pop()
+            resultado_type = pTipos.pop()
+            if resultado_type == actualFunType:
+                quad = (op, -1, -1, resultado)
+                cuadruplos.append(quad)
+            else:
+                print("Type missmatch")
+                sys.exit()
 
 def p_ESCRITURA(p):
     'ESCRITURA : PRINT L_PAREN ESCRITURA_AUX R_PAREN SEMICOLON'
@@ -556,10 +593,22 @@ def quad_generator_4args():
     result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
     if(result_type != 'error'):
         result = avail.next()
-        quad = (op, operando_izquierdo, operando_derecho, result)
+        if result_type == 'int':
+            temporales[result] = virtualMemoryDirs['tempint']
+            virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
+        elif result_type == 'float':
+            temporales[result] = virtualMemoryDirs['tempfloat']
+            virtualMemoryDirs['tempfloat'] = virtualMemoryDirs['tempfloat'] + 1
+        elif result_type == 'char':
+            temporales[result] = virtualMemoryDirs['tempfloat']
+            virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
+        elif result_type == 'bool':
+            temporales[result] = virtualMemoryDirs['tempbool']
+            virtualMemoryDirs['tempbool'] = virtualMemoryDirs['tempbool'] + 1
+        quad = (op, operando_izquierdo, operando_derecho, temporales[result])
         #print('cuadruplo: ' + str(quad))
         cuadruplos.append(quad)
-        pOperandos.append(result)
+        pOperandos.append(temporales[result])
         pTipos.append(result_type)
     else:
         print("type mismatch")
@@ -575,7 +624,7 @@ def quad_generator_2args():
     cuadruplos.append(quad)
     pOperandos.append(operando)
     pTipos.append(operando_type)
-    create_new_avail()
+    #create_new_avail()
 
 def add_if_while_from(goto):
     global pTipos, pSaltos, cuadruplos
@@ -600,7 +649,7 @@ def fill_quad(i):
 def printCuadruplos():
     for (i, elem) in enumerate(cuadruplos):
         print(i, elem)
-    procedures.print_proc() 
+    #procedures.print_proc() 
 
 # Function for resetting the avail
 def create_new_avail():

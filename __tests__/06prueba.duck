@@ -3,16 +3,35 @@ var
 	float result;
 
 function float myFunction (int param1)
-var float f1, f2;
+var float f1, f2, f3;
 {
 	f1 = 10.2;
 	f2 = 0.8;
-	param1 = f1*f2*param1;
-	return param1;
+	f3 = f1*f2*param1;
+	if(f1 > f2 || f1 > f3) {
+		print("lmao");
+	}
+	else {
+		print("nothing");
+	}
+	return f3;
 }
 
+function float myFunction2 (int param1)
+var float f1, f2, f3;
+{
+	f1 = 10.2;
+	f2 = 0.8;
+	f3 = f1*f2*param1;
+	if(f1 > f2 || f1 > f3) {
+		print("lmao");
+	}
+	else {
+		print("nothing");
+	}
+	return f3;
+}
 main ()
 {
-	result = myFunction(10);
-    return 0;
+	result = 10.2;
 }
