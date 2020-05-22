@@ -92,13 +92,13 @@ class DirectorioProcedimientos(object):
         
         print(self.list)
 
-if __name__ == "__main__":
-    print("calando tests...")
-    test = DirectorioProcedimientos()
-    test.add_function('function1', 'void', 2, ['int', 'float'], ['myInt', 'myFloat'], 0)
-    test.add_var('function1', 'x', int, 100)
-    test.add_var('function1', 'y', int, 101)
-    test.add_var('function1', 'z', int, 102)
-    test.add_var('function1', 'b', bool, 103)
-    print(test.search('function1'))
-    test.list_vars('function1')
+# if __name__ == "__main__":
+#     print("calando tests...")
+#     test = DirectorioProcedimientos()
+#     test.add_function('function1', 'void', 2, ['int', 'float'], ['myInt', 'myFloat'], 0)
+#     test.add_var('function1', 'x', int, 100)
+#     test.add_var('function1', 'y', int, 101)
+#     test.add_var('function1', 'z', int, 102)
+#     test.add_var('function1', 'b', bool, 103)
+#     print(test.search('function1'))
+#     test.list_vars('function1')

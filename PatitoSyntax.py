@@ -118,6 +118,15 @@ def p_save_func(p):
     actualFunId = p[-1]
     global procedures
     procedures.add_function(actualFunId, actualFunType, 0, [], [], 0, None)
+    # Saving a global variable with the same name as the function to store all the returns for the function
+    if(actualFunType != 'void'):
+        if(procedures.search(actualFunId) == True):
+            memoryType = 'global' + actualFunType
+            procedures.add_var('global', actualFunId, actualFunType, virtualMemoryDirs[memoryType])
+            virtualMemoryDirs[memoryType] = virtualMemoryDirs[memoryType] + 1
+        else:
+            print("Function does not exist.")
+            sys.exit()
 
 def p_add_quad_counter(p):
     '''add_quad_counter : '''
@@ -138,6 +147,7 @@ def p_release_func(p):
     # Generate an action to end the function (ENDFunc).
     quad = ('ENDPROC', -1, -1, -1)
     cuadruplos.append(quad)
+    print("cuadruplo: " + str(quad))
     # Insert into DirFunc the number of temporal vars used.
 
 def p_PARAMS(p):
@@ -185,8 +195,8 @@ def p_generate_equal_quad(p):
             operando_izquierdo_type = pTipos.pop()
             result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
             if result_type != 'error':
-                quad = (op, operando_izquierdo, None, operando_derecho)
-                #print('cuadruplo: ' + str(quad))
+                quad = (op, operando_izquierdo, -1, operando_derecho)
+                print('cuadruplo: ' + str(quad))
                 cuadruplos.append(quad)
                 #create_new_avail()
             else:
@@ -375,7 +385,7 @@ def p_add_operando_var(p):
     # print('added operando: ' + str(p[-1]))
 
 def p_LLAMADA(p):
-    '''LLAMADA : IDENTIFIER search_func L_PAREN generate_era_quad LLAMADA_AUX verify_params R_PAREN SEMICOLON generate_gosub_quad'''
+    '''LLAMADA : IDENTIFIER search_func L_PAREN generate_era_quad LLAMADA_AUX verify_params R_PAREN generate_gosub_quad generate_temp_var'''
 
 # Verify that function called already exits
 def p_search_func(p):
@@ -391,7 +401,7 @@ def p_search_func(p):
 def p_generate_era_quad(p):
     '''generate_era_quad : '''
     global kParams, actualVarId
-    quad = ('ERA', None, None, actualVarId)
+    quad = ('ERA', -1, -1, actualVarId)
     cuadruplos.append(quad)
     kParams = 1
 
@@ -407,8 +417,27 @@ def p_verify_params(p):
 def p_generate_gosub_quad(p):
     '''generate_gosub_quad : '''
     global actualVarId
-    quad = ('GOSUB', actualVarId, None, procedures.get_quad_num(actualVarId))
+    quad = ('GOSUB', actualVarId, -1, procedures.get_quad_num(actualVarId))
     cuadruplos.append(quad)
+
+def p_generate_temp_var(p):
+    '''generate_temp_var : '''
+    # Every time we call a function we need to store the value it returns in a tmp variable and append it to the operands list.
+    global pOperandos, pTipos
+    result = avail.next()
+    if actualVarType == 'int':
+        temporales[result] = virtualMemoryDirs['tempint']
+        virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
+    elif actualVarType == 'float':
+        temporales[result] = virtualMemoryDirs['tempfloat']
+        virtualMemoryDirs['tempfloat'] = virtualMemoryDirs['tempfloat'] + 1
+    elif actualVarType == 'char':
+        temporales[result] = virtualMemoryDirs['tempfloat']
+        virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
+    quad = ('=', procedures.get_var_memory_loc('global', actualVarId) , -1, temporales[result])
+    cuadruplos.append(quad)
+    pOperandos.append(temporales[result])
+    pTipos.append(actualVarType)
 
 def p_LLAMDA_AUX(p):
     '''LLAMADA_AUX : EXPRESION generate_quad_parameter LLAMADA_AUX_2
@@ -432,7 +461,7 @@ def p_add_paramater(p):
         if (currentArgType != argumentType):
             print("Parameter type mismatch, calling function:", actualVarId)
             sys.exit()
-        quad = ('PARAMETER', currentArg, None, kParams)
+        quad = ('PARAMETER', currentArg, -1, kParams)
         cuadruplos.append(quad)
     else:
         print("Error in parameters, calling function:", actualVarId)
@@ -464,7 +493,7 @@ def p_add_end_while_from(p):
     global pSaltos, cuadruplos
     end = pSaltos.pop()
     jump = pSaltos.pop()
-    quad = ('GOTO', None, None, jump)
+    quad = ('GOTO', -1, -1, jump)
     cuadruplos.append(quad)
     fill_quad(end)
 
@@ -508,7 +537,7 @@ def p_CONDICION_AUX(p):
 def p_add_else(p):
     '''add_else : '''
     global pSaltos, cuadruplos
-    quad = ('GOTO', None, None, -1)
+    quad = ('GOTO', -1, -1, -1)
     cuadruplos.append(quad)
     jump = pSaltos.pop()
     pSaltos.append(len(cuadruplos)-1)
@@ -542,6 +571,7 @@ def p_add_return_quad(p):
             resultado_type = pTipos.pop()
             if resultado_type == actualFunType:
                 quad = (op, -1, -1, resultado)
+                print("cuadruplo: " + str(quad))
                 cuadruplos.append(quad)
             else:
                 print("Type missmatch")
@@ -663,7 +693,7 @@ def quad_generator_4args():
             temporales[result] = virtualMemoryDirs['tempbool']
             virtualMemoryDirs['tempbool'] = virtualMemoryDirs['tempbool'] + 1
         quad = (op, operando_izquierdo, operando_derecho, temporales[result])
-        #print('cuadruplo: ' + str(quad))
+        print('cuadruplo: ' + str(quad))
         cuadruplos.append(quad)
         pOperandos.append(temporales[result])
         pTipos.append(result_type)
@@ -676,8 +706,8 @@ def quad_generator_2args():
     op = pOperadores.pop()
     operando = pOperandos.pop()
     operando_type = pTipos.pop()
-    quad = (op, None, None, operando)
-    #print('cuadruplo: ' + str(quad))
+    quad = (op, -1, -1, operando)
+    print('cuadruplo: ' + str(quad))
     cuadruplos.append(quad)
     pOperandos.append(operando)
     pTipos.append(operando_type)
@@ -688,10 +718,10 @@ def add_if_while_from(goto):
     exp_type = pTipos.pop()
     if exp_type == 'bool':
         result = pOperandos.pop()
-        quad = (goto, result, None, -1)
+        quad = (goto, result, -1, -1)
         cuadruplos.append(quad)
         pSaltos.append(len(cuadruplos)-1)
-        #print('cuadruplo: ' + str(quad))
+        print('cuadruplo: ' + str(quad))
     else: 
         print("type mismatch")
         sys.exit()
@@ -701,7 +731,7 @@ def fill_quad(i):
     temp = list(cuadruplos[i])
     temp[3] = len(cuadruplos)
     cuadruplos[i] = tuple(temp)
-    #print('cuadruplo: ' + str(cuadruplos[i]))
+    print('cuadruplo: ' + str(cuadruplos[i]))
 
 def printCuadruplos():
     for (i, elem) in enumerate(cuadruplos):
