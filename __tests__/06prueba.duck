@@ -1,7 +1,7 @@
 program prueba01;
 var
 	float result;
-
+	int i;
 function float myFunction (int param1)
 var float f1, f2, f3;
 {
@@ -12,5 +12,11 @@ var float f1, f2, f3;
 }
 main ()
 {
-	result = myFunction(12-3);
+	i = 12;
+	if(i > 10 && i < 20) {
+		print("lmao");
+	}
+	else {
+		print("lol");
+	}
 }

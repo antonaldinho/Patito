@@ -18,7 +18,8 @@ pSaltos = []
 cuadruplos = []
 cubo = cuboSemantico()
 avail = Avail()
-temporales = {}
+temporales = {} # esto se puede implementar sin necesidad de usar esta variable.
+constantes = {}
 kParams = 1
 
 #direcciones de memoria virtual para variables
@@ -36,6 +37,29 @@ virtualMemoryDirs = {
     'constint': 21000,
     'constfloat': 23000,
     'constchar': 25000,
+    'conststring': 27000,
+}
+
+# Operation codes
+operations = {
+    '+': 1,
+    '-': 2,
+    '*': 3,
+    '/': 4,
+    '=': 5,
+    '<': 6,
+    '>': 7,
+    '<=': 8,
+    '>=': 9,
+    '==': 10,
+    '&&': 11,
+    '||': 12,
+    'print': 13,
+    'goto': 14,
+    'gotof': 15,
+    'gosub': 16,
+    'endproc': 17,
+    'return': 18
 }
 
 isGlobal = True
@@ -342,20 +366,34 @@ def p_add_operando_cte(p):
     global pOperandos
     global pOperadores
     tipo = type(p[-1])
-    pOperandos.append(p[-1])
+    # The constants are inserted into the const table
     if tipo == int:
         pTipos.append('int')
+        constantes[str(p[-1])] = virtualMemoryDirs['constint']
+        virtualMemoryDirs['constint'] += 1
+        pOperandos.append(constantes[str(p[-1])])
     elif tipo == float:
         pTipos.append('float')
+        constantes[str(p[-1])] = virtualMemoryDirs['constfloat']
+        virtualMemoryDirs['constfloat'] += 1
+        pOperandos.append(constantes[str(p[-1])])
     elif tipo == str:
         pTipos.append('string')
+        string = p[-1].replace('"', '')
+        constantes[string] = virtualMemoryDirs['conststring']
+        virtualMemoryDirs['conststring'] += 1
+        pOperandos.append(constantes[string])
+
     # print('added operando: ' + str(p[-1]))
 
 def p_add_operando_char(p):
     '''add_operando_char : '''
     global pOperandos
     global pOperadores
-    pOperandos.append(p[-1])
+    pTipos.append('int')
+    constantes[p[-1]] = virtualMemoryDirs['constchar']
+    virtualMemoryDirs['constchar'] += 1
+    pOperandos.append(constantes[p[-1]])
     pTipos.append('char')
 
 def p_MATRIZ_OP(p):
