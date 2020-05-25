@@ -168,10 +168,11 @@ def p_release_func(p):
     virtualMemoryDirs['tempchar'] = 17000
     virtualMemoryDirs['tempbool'] = 19000
     procedures.delete_var_table(actualFunId)
-    # Generate an action to end the function (ENDFunc).
-    quad = ('ENDPROC', -1, -1, -1)
-    cuadruplos.append(quad)
-    print("cuadruplo: " + str(quad))
+    # Generate an action to end the function (ENDFunc) only if void.
+    if(actualFunType == 'void'):
+        quad = ('ENDPROC', -1, -1, -1)
+        cuadruplos.append(quad)
+    # print("cuadruplo: " + str(quad))
     # Insert into DirFunc the number of temporal vars used.
 
 def p_PARAMS(p):
@@ -218,9 +219,10 @@ def p_generate_equal_quad(p):
             operando_izquierdo = pOperandos.pop()
             operando_izquierdo_type = pTipos.pop()
             result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
+            print('result type: ' + str(result_type))
             if result_type != 'error':
                 quad = (op, operando_izquierdo, -1, operando_derecho)
-                print('cuadruplo: ' + str(quad))
+                # print('cuadruplo: ' + str(quad))
                 cuadruplos.append(quad)
                 #create_new_avail()
             else:
@@ -472,7 +474,7 @@ def p_generate_temp_var(p):
     elif actualVarType == 'char':
         temporales[result] = virtualMemoryDirs['tempfloat']
         virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
-    quad = ('=', procedures.get_var_memory_loc('global', actualVarId) , -1, temporales[result])
+    quad = ('=', temporales[result], -1, procedures.get_var_memory_loc('global', actualVarId))
     cuadruplos.append(quad)
     pOperandos.append(temporales[result])
     pTipos.append(actualVarType)
@@ -592,7 +594,7 @@ def p_ESTATUTO(p):
     | REGRESO'''
 
 def p_REGRESO(p):
-    '''REGRESO : RETURN add_return_op EXPRESION add_return_quad SEMICOLON'''
+    '''REGRESO : RETURN add_return_op EXPRESION add_return_quad SEMICOLON generate_endproc'''
 
 def p_add_return_op(p):
     '''add_return_op : '''
@@ -609,11 +611,17 @@ def p_add_return_quad(p):
             resultado_type = pTipos.pop()
             if resultado_type == actualFunType:
                 quad = (op, -1, -1, resultado)
-                print("cuadruplo: " + str(quad))
+                # print("cuadruplo: " + str(quad))
                 cuadruplos.append(quad)
             else:
                 print("Type missmatch")
                 sys.exit()
+
+def p_generate_endproc(p):
+    '''generate_endproc : '''
+    global cuadruplos
+    quad = ('ENDPROC', -1, -1, -1)
+    cuadruplos.append(quad)
 
 def p_ESCRITURA(p):
     'ESCRITURA : PRINT L_PAREN ESCRITURA_AUX R_PAREN SEMICOLON'
@@ -731,7 +739,7 @@ def quad_generator_4args():
             temporales[result] = virtualMemoryDirs['tempbool']
             virtualMemoryDirs['tempbool'] = virtualMemoryDirs['tempbool'] + 1
         quad = (op, operando_izquierdo, operando_derecho, temporales[result])
-        print('cuadruplo: ' + str(quad))
+        # print('cuadruplo: ' + str(quad))
         cuadruplos.append(quad)
         pOperandos.append(temporales[result])
         pTipos.append(result_type)
@@ -745,7 +753,7 @@ def quad_generator_2args():
     operando = pOperandos.pop()
     operando_type = pTipos.pop()
     quad = (op, -1, -1, operando)
-    print('cuadruplo: ' + str(quad))
+    # print('cuadruplo: ' + str(quad))
     cuadruplos.append(quad)
     pOperandos.append(operando)
     pTipos.append(operando_type)
@@ -759,7 +767,7 @@ def add_if_while_from(goto):
         quad = (goto, result, -1, -1)
         cuadruplos.append(quad)
         pSaltos.append(len(cuadruplos)-1)
-        print('cuadruplo: ' + str(quad))
+        # print('cuadruplo: ' + str(quad))
     else: 
         print("type mismatch")
         sys.exit()
@@ -769,7 +777,7 @@ def fill_quad(i):
     temp = list(cuadruplos[i])
     temp[3] = len(cuadruplos)
     cuadruplos[i] = tuple(temp)
-    print('cuadruplo: ' + str(cuadruplos[i]))
+    # print('cuadruplo: ' + str(cuadruplos[i]))
 
 def printCuadruplos():
     for (i, elem) in enumerate(cuadruplos):
