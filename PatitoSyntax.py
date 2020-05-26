@@ -21,6 +21,7 @@ avail = Avail()
 temporales = {} # esto se puede implementar sin necesidad de usar esta variable.
 constantes = {}
 kParams = 1
+tmpCounter = 0
 
 #direcciones de memoria virtual para variables
 virtualMemoryDirs = {
@@ -167,13 +168,17 @@ def p_release_func(p):
     virtualMemoryDirs['tempfloat'] = 15000
     virtualMemoryDirs['tempchar'] = 17000
     virtualMemoryDirs['tempbool'] = 19000
+    global procedures
     procedures.delete_var_table(actualFunId)
-    # Generate an action to end the function (ENDFunc) only if void.
-    if(actualFunType == 'void'):
-        quad = ('ENDPROC', -1, -1, -1)
-        cuadruplos.append(quad)
+    # Generate an action to end the function (ENDFunc)
+    quad = ('ENDPROC', -1, -1, -1)
+    cuadruplos.append(quad)
     # print("cuadruplo: " + str(quad))
     # Insert into DirFunc the number of temporal vars used.
+    global tmpCounter
+    print('num tmp vars: ' + str(tmpCounter) + ' in ' + str(actualFunId))
+    procedures.add_num_tmp(actualFunId, tmpCounter)
+    tmpCounter = 0
 
 def p_PARAMS(p):
     '''PARAMS : TIPO_VAR PARAMS_2
@@ -465,6 +470,8 @@ def p_generate_temp_var(p):
     # Every time we call a function we need to store the value it returns in a tmp variable and append it to the operands list.
     global pOperandos, pTipos
     result = avail.next()
+    global tmpCounter
+    tmpCounter += 1
     if actualVarType == 'int':
         temporales[result] = virtualMemoryDirs['tempint']
         virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
@@ -548,7 +555,7 @@ def p_ASIGNACION_DESDE(p):
     '''ASIGNACION_DESDE : IDENTIFIER add_id DIMENSIONES EQUALS add_equal_operator EXPRESION generate_equal_quad'''
 
 def p_PRINCIPAL(p):
-    '''PRINCIPAL : MAIN L_PAREN R_PAREN BLOQUE'''
+    '''PRINCIPAL : MAIN L_PAREN R_PAREN BLOQUE release_func'''
 
 def p_BLOQUE(p):
     '''BLOQUE : L_BRACKET BLOQUE_AUX R_BRACKET'''
@@ -594,7 +601,7 @@ def p_ESTATUTO(p):
     | REGRESO'''
 
 def p_REGRESO(p):
-    '''REGRESO : RETURN add_return_op EXPRESION add_return_quad SEMICOLON generate_endproc'''
+    '''REGRESO : RETURN add_return_op EXPRESION add_return_quad SEMICOLON'''
 
 def p_add_return_op(p):
     '''add_return_op : '''
@@ -617,11 +624,11 @@ def p_add_return_quad(p):
                 print("Type missmatch")
                 sys.exit()
 
-def p_generate_endproc(p):
-    '''generate_endproc : '''
-    global cuadruplos
-    quad = ('ENDPROC', -1, -1, -1)
-    cuadruplos.append(quad)
+# def p_generate_endproc(p):
+#     '''generate_endproc : '''
+#     global cuadruplos
+#     quad = ('ENDPROC', -1, -1, -1)
+#     cuadruplos.append(quad)
 
 def p_ESCRITURA(p):
     'ESCRITURA : PRINT L_PAREN ESCRITURA_AUX R_PAREN SEMICOLON'
@@ -726,6 +733,8 @@ def quad_generator_4args():
     result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
     if(result_type != 'error'):
         result = avail.next()
+        global tmpCounter
+        tmpCounter += 1
         if result_type == 'int':
             temporales[result] = virtualMemoryDirs['tempint']
             virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
@@ -776,6 +785,7 @@ def fill_quad(i):
     global cuadruplos
     temp = list(cuadruplos[i])
     temp[3] = len(cuadruplos)
+    print(temp, temp[3])
     cuadruplos[i] = tuple(temp)
     # print('cuadruplo: ' + str(cuadruplos[i]))
 

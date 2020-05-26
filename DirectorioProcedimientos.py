@@ -84,6 +84,9 @@ class DirectorioProcedimientos(object):
     def list_vars(self, name):
         if name in self.list:
             self.list[name]['vars'].print_all_vars()
+    
+    def add_num_tmp(self, fName, numTmpVars):
+        self.list[fName]['numTmp'] = numTmpVars
 
     def print_proc(self):
         for (elem) in (self.list):
