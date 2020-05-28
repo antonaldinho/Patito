@@ -89,11 +89,15 @@ class DirectorioProcedimientos(object):
         self.list[fName]['numTmp'] = numTmpVars
 
     def print_proc(self):
-        for (elem) in (self.list):
-            print(elem)
-            self.list_vars(elem)
+        for elem in self.list:
+            print(elem, self.list[elem])
         
-        print(self.list)
+    def print_out_proc(self):  
+        for elem in self.list:
+            print(elem, end=' ')
+            for l in self.list[elem]:
+                print(str(self.list[elem][l]), end=" ")
+            print()
 
 # if __name__ == "__main__":
 #     print("calando tests...")

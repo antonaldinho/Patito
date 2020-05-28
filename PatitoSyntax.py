@@ -6,6 +6,7 @@ import queue as Queue
 from cuboSemantico import cuboSemantico
 from Avail import Avail
 
+program_name = ''
 actualVarType = ''
 actualVarId = ''
 actualFunType = ''
@@ -66,8 +67,13 @@ operations = {
 isGlobal = True
 
 def p_PROGRAMA(p):
-    '''programa : add_global_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES add_main_function PRINCIPAL'''
+    '''programa : add_global_function PROGRAM IDENTIFIER program_name SEMICOLON generate_gomain_quad DECLARACIONES FUNCIONES add_main_function add_main_counter PRINCIPAL'''
     p[0] = "PROGRAM COMPILED"
+
+def p_program_name(p):
+    '''program_name : '''
+    global program_name
+    program_name = p[-1]
 
 def p_add_global_function(p):
     '''add_global_function : '''
@@ -86,6 +92,18 @@ def p_add_main_function(p):
     actualFunType = 'void'
     global procedures
     procedures.add_function(actualFunId, actualFunType, 0, [], [], 0, None)
+
+def p_generate_gomain_quad(p):
+    '''generate_gomain_quad : '''
+    quad = ('GOSUB', 'main', -1, None)
+    cuadruplos.append(quad)
+
+def p_add_main_counter(p):
+    '''add_main_counter : '''
+    procedures.add_quad_counter(actualFunId, len(cuadruplos))
+    temp = list(cuadruplos[0])
+    temp[3] = procedures.get_quad_num(actualFunId)
+    cuadruplos[0] = tuple(temp)
 
 def p_DECLARACIONES(p):
     '''DECLARACIONES : VAR DECLARACIONES_1
@@ -792,12 +810,36 @@ def fill_quad(i):
 def printCuadruplos():
     for (i, elem) in enumerate(cuadruplos):
         print(i, elem)
-    #procedures.print_proc() 
+    procedures.print_proc()
+    print(constantes)
 
 # Function for resetting the avail
 def create_new_avail():
     global avail
     avail = Avail()
+
+# Function to create output file for VM
+def createDout():
+    global program_name
+    orig_stdout = sys.stdout
+    filename = str(program_name + ".dout")
+    print(filename)
+    file = open(filename, "w")
+    sys.stdout = file
+
+    print("---QUADS---")
+    for quad in cuadruplos:
+        for elem in quad:
+            print(str(elem), end = ' ')
+        print()
+    print("---PROC---")
+    procedures.print_out_proc()
+    print("---CTES---")
+    for cte in constantes:
+        print(cte, constantes[cte])
+
+    sys.stdout = orig_stdout
+    file.close()
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -810,17 +852,18 @@ parser = yacc.yacc()
 
 
 if __name__ == '__main__':
-	if (len(sys.argv) > 1):
-		file = sys.argv[1]
-		try:
-			f = open(file,'r')
-			data = f.read()
-			f.close()
-			if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
-				print ("Finished compiling")
-				printCuadruplos()
+    if (len(sys.argv) > 1):
+        file = sys.argv[1]
+        try:
+            f = open(file,'r')
+            data = f.read()
+            f.close()
+            if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
+                print ("Finished compiling")
+                printCuadruplos()
+                createDout()
 
-		except EOFError:
-	   		print(EOFError)
-	else:
-		print('File missing')
+        except EOFError:
+            print(EOFError)
+    else:
+        print('File missing')
