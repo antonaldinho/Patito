@@ -1,4 +1,4 @@
-program prueba01;
+program prueba04;
 var
 	int a, b;
 	int c;
@@ -30,9 +30,8 @@ var int s1;
 main ()
 {
 	a = 1 * 2;
-	b = (2 +4) / 8;
+	b = (2+ 4) / 8;
 	c = b + a;
-	lol = 'D';
 
     suma(1);
     result = a*b*c;
@@ -42,7 +41,7 @@ main ()
 		b = b+1;
 		a = a + 1;
 		print(b);
-		print(1+2+3);
+		print(1+ 2+ 3);
 	} 
     imprime();
 	a = a+b+c;

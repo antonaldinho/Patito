@@ -1,4 +1,4 @@
-program prueba01;
+program prueba05;
 var
 	int a, b;
 	int c;

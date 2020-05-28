@@ -136,5 +136,5 @@ dmypy.json
 
 parsetab.py
 PatitoSyntax_test.py
-log.txt
+*log.txt
 *.dout
