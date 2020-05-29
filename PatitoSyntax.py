@@ -394,32 +394,34 @@ def p_add_operando_cte(p):
     # The constants are inserted into the const table
     if tipo == int:
         pTipos.append('int')
-        constantes[str(p[-1])] = virtualMemoryDirs['constint']
-        virtualMemoryDirs['constint'] += 1
+        if str(p[-1]) not in constantes:
+            constantes[str(p[-1])] = virtualMemoryDirs['constint']
+            virtualMemoryDirs['constint'] += 1
         pOperandos.append(constantes[str(p[-1])])
     elif tipo == float:
         pTipos.append('float')
-        constantes[str(p[-1])] = virtualMemoryDirs['constfloat']
-        virtualMemoryDirs['constfloat'] += 1
+        if str(p[-1]) not in constantes:
+            constantes[str(p[-1])] = virtualMemoryDirs['constfloat']
+            virtualMemoryDirs['constfloat'] += 1
         pOperandos.append(constantes[str(p[-1])])
     elif tipo == str:
         pTipos.append('string')
         string = p[-1].replace('"', '')
-        constantes[string] = virtualMemoryDirs['conststring']
-        virtualMemoryDirs['conststring'] += 1
+        if string not in constantes:
+            constantes[string] = virtualMemoryDirs['conststring']
+            virtualMemoryDirs['conststring'] += 1
         pOperandos.append(constantes[string])
-
     # print('added operando: ' + str(p[-1]))
 
 def p_add_operando_char(p):
     '''add_operando_char : '''
     global pOperandos
     global pOperadores
-    pTipos.append('int')
-    constantes[p[-1]] = virtualMemoryDirs['constchar']
-    virtualMemoryDirs['constchar'] += 1
-    pOperandos.append(constantes[p[-1]])
     pTipos.append('char')
+    if p[-1] not in constantes:
+        constantes[p[-1]] = virtualMemoryDirs['constchar']
+        virtualMemoryDirs['constchar'] += 1
+    pOperandos.append(constantes[p[-1]])
 
 def p_MATRIZ_OP(p):
     '''MATRIZ_OP : TRANS
