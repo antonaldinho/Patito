@@ -14,7 +14,15 @@ class DirectorioProcedimientos(object):
                 'nameParams': nameParams,
                 'vars': TablaVariables(),
                 'numVars': numVars,
-                'quadNum': quad
+                'quadNum': quad,
+                'numTmp': 0,
+                'intVars': 0,
+                'floatVars': 0,
+                'charVars': 0,
+                'intTmp': 0,
+                'floatTmp': 0,
+                'charTmp': 0,
+                'boolTmp': 0
             }
             #print("added function: " + name)
         else:
@@ -69,6 +77,8 @@ class DirectorioProcedimientos(object):
         else:
             self.list[fName]['vars'].add_var(vName, vType, vMemoryLoc)
             self.list[fName]['numVars'] = self.list[fName]['numVars'] + 1
+            type = vType + 'Vars'
+            self.list[fName][type] = self.list[fName][type] +1
     
     def add_param(self, fName, vName, vType):
         self.list[fName]['numParams'] = self.list[fName]['numParams'] + 1
@@ -77,6 +87,11 @@ class DirectorioProcedimientos(object):
     
     def add_quad_counter(self, fName, quad):
         self.list[fName]['quadNum'] = quad
+
+    # Add 1 to tmp var counter by type
+    def add_tmp_type(self, fName, vType):
+        type = vType + 'Tmp'
+        self.list[fName][type] = self.list[fName][type]+1
 
     def delete_var_table(self, fName):
         self.list[fName]['vars'] = None
@@ -92,12 +107,12 @@ class DirectorioProcedimientos(object):
         for elem in self.list:
             print(elem, self.list[elem])
         
+    # Print for .dout file
     def print_out_proc(self):  
         for elem in self.list:
-            print(elem, end=' ')
-            for l in self.list[elem]:
-                print(str(self.list[elem][l]), end=" ")
-            print()
+            print(elem, str(self.list[elem]['numVars']), str(self.list[elem]['quadNum']), end=' ') 
+            print(str(self.list[elem]['intVars']), str(self.list[elem]['floatVars']), str(self.list[elem]['charVars']), end=' ')
+            print(str(self.list[elem]['intTmp']), str(self.list[elem]['floatTmp']), str(self.list[elem]['charTmp']), str(self.list[elem]['boolTmp']))
 
 # if __name__ == "__main__":
 #     print("calando tests...")

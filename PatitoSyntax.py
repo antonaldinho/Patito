@@ -492,6 +492,7 @@ def p_generate_temp_var(p):
     result = avail.next()
     global tmpCounter
     tmpCounter += 1
+    procedures.add_tmp_type(actualFunId, actualVarType)
     if actualVarType == 'int':
         temporales[result] = virtualMemoryDirs['tempint']
         virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
@@ -755,6 +756,7 @@ def quad_generator_4args():
         result = avail.next()
         global tmpCounter
         tmpCounter += 1
+        procedures.add_tmp_type(actualFunId, result_type)
         if result_type == 'int':
             temporales[result] = virtualMemoryDirs['tempint']
             virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
