@@ -194,7 +194,7 @@ def p_release_func(p):
     # print("cuadruplo: " + str(quad))
     # Insert into DirFunc the number of temporal vars used.
     global tmpCounter
-    print('num tmp vars: ' + str(tmpCounter) + ' in ' + str(actualFunId))
+    # print('num tmp vars: ' + str(tmpCounter) + ' in ' + str(actualFunId))
     procedures.add_num_tmp(actualFunId, tmpCounter)
     tmpCounter = 0
 
@@ -242,7 +242,7 @@ def p_generate_equal_quad(p):
             operando_izquierdo = pOperandos.pop()
             operando_izquierdo_type = pTipos.pop()
             result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
-            print('result type: ' + str(result_type))
+            # print('result type: ' + str(result_type))
             if result_type != 'error':
                 quad = (op, operando_izquierdo, -1, operando_derecho)
                 # print('cuadruplo: ' + str(quad))
@@ -807,7 +807,7 @@ def fill_quad(i):
     global cuadruplos
     temp = list(cuadruplos[i])
     temp[3] = len(cuadruplos)
-    print(temp, temp[3])
+    # print(temp, temp[3])
     cuadruplos[i] = tuple(temp)
     # print('cuadruplo: ' + str(cuadruplos[i]))
 
