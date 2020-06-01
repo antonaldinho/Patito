@@ -57,6 +57,29 @@ class TablaVariables(object):
 
     def get_array_size(self, name):
         return(self.list[name]['size'])
+    
+    def is_dimentioned(self, name):
+        return(self.list[name]['is_dimentioned'])
+    
+    def get_num_dims(self, name):
+        return(self.list[name]['num_dimentions'])
+    
+    def get_first_node(self, name, dim):
+        if dim == 1:
+            return(
+                {
+                    'lsup': self.list[name]['lsup'][0],
+                    'm': self.list[name]['m'][0],
+                }
+            )
+        elif dim == 2:
+            return(
+                {
+                    'lsup': self.list[name]['lsup'][1],
+                    'm': self.list[name]['m'][1],
+                }
+            )
+
     def print_all_vars(self):
         print(self.list.items())
         

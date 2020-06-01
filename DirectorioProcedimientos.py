@@ -115,6 +115,25 @@ class DirectorioProcedimientos(object):
     
     def get_array_size(self, fName, vName):
         return(self.list[fName]['vars'].get_array_size(vName))
+    
+    def is_dimentioned(self, fName, vName):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].is_dimentioned(vName))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].is_dimentioned(vName))
+    
+    def get_num_dims(self, fName, vName):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].get_num_dims(vName))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].get_num_dims(vName))
+    
+    def get_first_node(self, fName, vName, dim):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].get_first_node(vName, dim))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].get_first_node(vName, dim))
+        
 
 # if __name__ == "__main__":
 #     print("calando tests...")

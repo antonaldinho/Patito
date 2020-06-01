@@ -23,6 +23,11 @@ temporales = {} # esto se puede implementar sin necesidad de usar esta variable.
 constantes = {}
 kParams = 1
 tmpCounter = 0
+dim = 0
+pilaDim = []
+firstNode = None
+secondNode = None
+numDims = 0
 
 #direcciones de memoria virtual para variables
 virtualMemoryDirs = {
@@ -40,6 +45,7 @@ virtualMemoryDirs = {
     'constfloat': 23000,
     'constchar': 25000,
     'conststring': 27000,
+    'temppointer': 29000
 }
 
 # Operation codes
@@ -91,7 +97,7 @@ def p_add_main_function(p):
 def p_DECLARACIONES(p):
     '''DECLARACIONES : VAR DECLARACIONES_1
     | empty'''
-    procedures.list_vars(actualFunId)
+    # procedures.list_vars(actualFunId)
 
 def p_DECLARACIONES_1(p):
     '''DECLARACIONES_1 : TIPO_VAR DECLARACIONES_2 SEMICOLON DECLARACIONES_ADD'''
@@ -254,6 +260,7 @@ def p_generate_equal_quad(p):
             operando_derecho_type = pTipos.pop()
             operando_izquierdo = pOperandos.pop()
             operando_izquierdo_type = pTipos.pop()
+            print(operando_izquierdo_type, operando_derecho_type)
             result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
             if result_type != 'error':
                 quad = (op, operando_izquierdo['mem'], -1, operando_derecho['mem'])
@@ -267,12 +274,72 @@ def p_generate_equal_quad(p):
                 sys.exit()
 
 def p_DIMENSIONES(p):
-    '''DIMENSIONES : L_SQ_BRACKET EXPRESION R_SQ_BRACKET DIMENSIONES_2
+    '''DIMENSIONES : L_SQ_BRACKET ver_dimentions EXPRESION create_dim_quad R_SQ_BRACKET DIMENSIONES_2 create_final_dim_quads
     | empty'''
 
 def p_DIMENSIONES_2(p):
-    '''DIMENSIONES_2 : L_SQ_BRACKET EXPRESION R_SQ_BRACKET
+    '''DIMENSIONES_2 : L_SQ_BRACKET next_dim EXPRESION R_SQ_BRACKET
     | empty'''
+
+def p_ver_dimentions(p):
+    '''ver_dimentions : '''
+    operando = pOperandos.pop()
+    tipo = pTipos.pop()
+    global dim, pilaDim, numDims, firstNode
+    if procedures.is_dimentioned(actualFunId, operando['id']):
+        dim = 1
+        pilaDim.append((operando, dim))
+        numDims = procedures.get_num_dims(actualFunId, operando['id'])
+        firstNode = procedures.get_first_node(actualFunId, operando['id'], dim)
+    else:
+        print("Error: la variable '" + operando['id'] + "' no es dimensionada")
+        sys.exit()
+        
+def p_create_dim_quad(p):
+    '''create_dim_quad : '''
+    operando = pOperandos[-1]
+    tipo = pTipos[-1]
+    if(tipo != 'int'):
+        print("Error: dimention must be int")
+        sys.exit()
+    quad = ('ver', operando['id'], 0, firstNode['lsup'])
+    cuadruplosIds.append(quad)
+    quad = ('ver', operando['mem'], 0, firstNode['lsup'])
+    cuadruplos.append(quad)
+    if(dim == 1 and numDims == 2):
+        print('haz las mamadas auxiliares')
+    if(dim > 1):
+        print('otra mamada')
+    
+def p_next_dim(p):
+    '''next_dim : '''
+    global dim
+    dim += 1
+
+def p_create_final_dim_quads(p):
+    '''create_final_dim_quads : '''
+    aux1 = pOperandos.pop()
+    aux1Type = pTipos.pop()
+    result = avail.next()
+    global tmpCounter
+    tmpCounter += 1
+    # print('vartype', actualVarType)
+    # print('varid', actualVarId)
+    temporales[result] = virtualMemoryDirs['temppointer']
+    virtualMemoryDirs['temppointer'] = virtualMemoryDirs['temppointer'] + 1
+    quad1 = ('sumaDir', aux1['id'], actualVarId, result)
+    quad2 = ('sumaDir', aux1['mem'], procedures.get_var_memory_loc(actualFunId, actualVarId), temporales[result])
+    cuadruplosIds.append(quad1)
+    cuadruplos.append(quad2)
+    obj = {
+        'id': result,
+        'mem': temporales[result]
+    }
+    pOperandos.append(obj)
+    pTipos.append(actualVarType)
+    print('pilaTipos', pTipos)
+    print('pilaOperandos', pOperandos)
+    print('pilaOperadores', pOperadores)
 
 def p_EXPRESION(p):
     '''EXPRESION : T_EXP generate_or_quad EXPRESION_AUX'''
@@ -449,7 +516,6 @@ def p_add_operando_char(p):
         'mem': constantes[p[-1]]
     }
     pOperandos.append(obj)
-    pTipos.append('char')
 
 def p_MATRIZ_OP(p):
     '''MATRIZ_OP : TRANS
@@ -478,6 +544,8 @@ def p_add_operando_var(p):
             'mem': procedures.get_var_memory_loc(actualFunId, varId)
         }
         pOperandos.append(obj)
+    else:
+        sys.exit()
     
     # print('added operando: ' + str(p[-1]))
 
@@ -730,7 +798,7 @@ def p_LECTURA_AUX(p):
 
 def p_add_id(p):
     '''add_id : '''
-    global actualVarId, procedures
+    global actualVarId, procedures, actualVarType
     actualVarId = p[-1]
     if procedures.search_var(actualFunId, actualVarId):
         # pOperandos.append(procedures.get_var_memory_loc(actualFunId, actualVarId))
@@ -740,6 +808,7 @@ def p_add_id(p):
         }
         pOperandos.append(obj)
         pTipos.append(procedures.get_var_type(actualFunId, actualVarId))
+        actualVarType = procedures.get_var_type(actualFunId, actualVarId)
         # print("added operando: " + str(p[-1]))
     else:
         sys.exit()
@@ -877,6 +946,9 @@ def fill_quad(i):
 
 def printCuadruplos():
     for (i, elem) in enumerate(cuadruplosIds):
+        print(i, elem)
+    
+    for (i, elem) in enumerate(cuadruplos):
         print(i, elem)
     #procedures.print_proc() 
 
