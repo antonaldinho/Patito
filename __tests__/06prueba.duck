@@ -1,9 +1,7 @@
 program prueba01;
-var
-	float result;
-	int i;
+var int i; char j;
 function float myFunction (int param1)
-var float f1, f2, f3;
+var float f1, f2, f3[5], f4;
 {
 	f1 = 10.2;
 	f2 = 0.8;

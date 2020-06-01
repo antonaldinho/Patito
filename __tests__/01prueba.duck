@@ -3,13 +3,13 @@ var
   int i, j;
   float myFloat, mySecondFloat;
   char myChar, mySecondChar;
-  int matrix[1][2];
+  int matrix[3][4], prueba;
 main() {
-  myChar = myChar && myChar;
+  mySecondChar = 'a';
   if (2 < 1) {
-     myChar = 24.3;
+     myChar = 'b';
   } else {
-    myChar = 25;
+    myChar = 'c';
   }
-  print("Good Job", aux1);
+  print("Good Job");
 }

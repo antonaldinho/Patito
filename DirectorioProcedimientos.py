@@ -14,7 +14,7 @@ class DirectorioProcedimientos(object):
                 'nameParams': nameParams,
                 'vars': TablaVariables(),
                 'numVars': numVars,
-                'quadNum': quad
+                'quadNum': quad,
             }
             #print("added function: " + name)
         else:
@@ -94,6 +94,27 @@ class DirectorioProcedimientos(object):
             self.list_vars(elem)
         
         print(self.list)
+    
+    def make_var_array(self, fName, vName):
+        self.list[fName]['vars'].make_array(vName)
+    
+    def add_dim(self, fName, vName):
+        self.list[fName]['vars'].add_dim(vName)
+    
+    def add_lsup(self, fName, vName, lsup):
+        self.list[fName]['vars'].add_lsup(vName, lsup)
+
+    def set_r(self, fName, vName, tipo):
+        self.list[fName]['vars'].set_r(vName, tipo)
+
+    def add_dimention(self, fName, vName):
+        self.list[fName]['vars'].add_dim(vName)
+    
+    def set_all_nodes(self, fName, vName):
+        self.list[fName]['vars'].set_all_nodes(vName)
+    
+    def get_array_size(self, fName, vName):
+        return(self.list[fName]['vars'].get_array_size(vName))
 
 # if __name__ == "__main__":
 #     print("calando tests...")
