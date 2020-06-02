@@ -42,88 +42,100 @@ def execute():
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq + op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '-':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq - op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '*':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq * op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '/':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq / op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '=':
             memoria[cuadruplos[IP][1]] = memoria[cuadruplos[IP][3]]
-            IP = IP + 1
+            IP += 1
         elif cod_op == 'print':
             toPrint = memoria[cuadruplos[IP][3]]
             print(toPrint)
-            IP = IP + 1
+            IP += 1
         elif cod_op == 'read': # TODO Solo funciona por el momento para leer numeros
             toRead = input()
             memoria[cuadruplos[IP][3]] = convert(toRead)
-            IP = IP + 1
+            IP += 1
         elif cod_op == '<':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq < op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '>':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq > op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '<=':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq <= op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '>=':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq >= op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '&&':
             op_izq = memoria[cuadruplos[IP][1]]
             op_der = memoria[cuadruplos[IP][2]]
             result = op_izq and op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '||':
             op_izq = memoria[cuadruplos[IP][1]]
             op_der = memoria[cuadruplos[IP][2]]
             result = op_izq or op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '!=':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq != op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == '==':
             op_izq = convert(memoria[cuadruplos[IP][1]])
             op_der = convert(memoria[cuadruplos[IP][2]])
             result = op_izq == op_der
             memoria[cuadruplos[IP][3]] = result
-            IP = IP + 1
+            IP += 1
         elif cod_op == 'GOSUB': 
             IP = int(cuadruplos[IP][3])
+        elif cod_op == 'GOTO':
+            IP = int(cuadruplos[IP][3])
+        elif cod_op == 'GOTOF':
+            if (memoria[cuadruplos[IP][1]] == False):
+                IP = int(cuadruplos[IP][3])
+            else: 
+                IP += 1
+        elif cod_op == 'GOTOV':
+            if (memoria[cuadruplos[IP][1]] == True):
+                IP = int(cuadruplos[IP][3])
+            else: 
+                IP += 1
         else:
-            IP = IP + 1 # TODO No Olvidar quitarlo
+            IP += 1 # TODO No Olvidar quitarlo
 
 # Extract functions data from .dout
 def create_functions(data):
