@@ -382,9 +382,11 @@ def p_F(p):
 
 def p_l_paren_expression(p):
     '''l_paren_expression : '''
+    pOperadores.append(p[-1])
 
 def p_r_paren_expression(p):
     '''r_paren_expression : '''
+    pOperadores.pop()
 
 def p_add_operando_cte(p):
     '''add_operando_cte : '''

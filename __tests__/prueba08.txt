@@ -1,0 +1,15 @@
+program prueba08;
+var  int a, b, c;
+
+function int suma(int i)
+{
+    return i + 10;
+}
+
+main ()
+{
+    a = 1;
+    b = 2;
+    c = suma(a) + suma(b);
+    print(a, b, c);
+}
