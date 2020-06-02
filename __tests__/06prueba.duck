@@ -1,10 +1,10 @@
 program prueba01;
-var float i; char j;
+var int i; char j;
 
 function float myFunction (int param1)
-var float f1, f2, f3[5], f4; int i;
+var float f1, f2, f3[5][4], f4[5]; int i[6];
 {
-	f3[i] = 90 * (1+2);
+	f3[i[2+2]][i[1]] = 90;
 	if(f1>f2) {
 		return f2;
 	}
@@ -15,5 +15,5 @@ var float f1, f2, f3[5], f4; int i;
 }
 main ()
 {
-	i = 1 * (2+3);
+	i = myFunction(12);
 }

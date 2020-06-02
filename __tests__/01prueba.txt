@@ -3,14 +3,13 @@ var
 	float a, b;
 	int c;
 
-function int funcion01 (int myParam, float myParam2)
-var
-	int x, y;
-	float myFloat1, myFloat2;
-	{
-		print("lmaoo");
-		return 2+4;
-	}
+function int funcion01 (int myParam)
+var int x;
+{
+	x = 12 + myParam;
+	return x;
+}
+
 main() {
-	c = funcion01(12, 3.5);
+	c = funcion01(12) + funcion01(11);
 }

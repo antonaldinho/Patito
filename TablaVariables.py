@@ -80,6 +80,24 @@ class TablaVariables(object):
                 }
             )
 
+    def get_node(self, name, dim):
+        if dim == 1:
+            return(
+                {
+                    'lsup': self.list[name]['lsup'][0],
+                    'm': self.list[name]['m'][0],
+                    'next': True if self.list[name]['num_dimentions'] == 2 else False
+                }
+            )
+        elif dim == 2:
+            return(
+                {
+                    'lsup': self.list[name]['lsup'][1],
+                    'm': self.list[name]['m'][1],
+                    'next': False
+                }
+            )
+
     def print_all_vars(self):
         print(self.list.items())
         

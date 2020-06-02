@@ -133,6 +133,12 @@ class DirectorioProcedimientos(object):
             return(self.list[fName]['vars'].get_first_node(vName, dim))
         elif self.list['global']['vars'].search(vName):
             return(self.list['global']['vars'].get_first_node(vName, dim))
+    
+    def get_node(self, fName, vName, dim):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].get_node(vName, dim))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].get_node(vName, dim))
         
 
 # if __name__ == "__main__":
