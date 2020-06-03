@@ -24,6 +24,9 @@ constantes = {}
 kParams = 1
 tmpCounter = 0
 
+actualCall = ''
+actualCallType = ''
+
 #direcciones de memoria virtual para variables
 virtualMemoryDirs = {
     'globalint': 1000,
@@ -96,6 +99,7 @@ def p_add_main_function(p):
 def p_generate_gomain_quad(p):
     '''generate_gomain_quad : '''
     quad = ('GOMAIN', 'main', -1, None)
+    print(quad)
     cuadruplos.append(quad)
 
 def p_add_main_counter(p):
@@ -190,6 +194,7 @@ def p_release_func(p):
     procedures.delete_var_table(actualFunId)
     # Generate an action to end the function (ENDFunc)
     quad = ('ENDPROC', -1, -1, -1)
+    print(quad)
     cuadruplos.append(quad)
     # print("cuadruplo: " + str(quad))
     # Insert into DirFunc the number of temporal vars used.
@@ -245,7 +250,7 @@ def p_generate_equal_quad(p):
             # print('result type: ' + str(result_type))
             if result_type != 'error':
                 quad = (op, operando_izquierdo, -1, operando_derecho)
-                # print('cuadruplo: ' + str(quad))
+                print(quad)
                 cuadruplos.append(quad)
                 #create_new_avail()
             else:
@@ -457,57 +462,62 @@ def p_LLAMADA(p):
 # Verify that function called already exits
 def p_search_func(p):
     '''search_func : '''
-    global actualVarId, actualVarType
-    actualVarId = p[-1]
-    if(not procedures.search(actualVarId)):
-        print("Procedure '", actualVarId, "' not found")
+    global actualCall, actualCallType
+    actualCall = p[-1]
+    if(not procedures.search(actualCall)):
+        print("Procedure '", actualCall, "' not found")
         sys.exit()
-    actualVarType = procedures.get_function_type(actualVarId)
+    actualCallType = procedures.get_function_type(actualCall)
 
 # Generate ERA quad 
 def p_generate_era_quad(p):
     '''generate_era_quad : '''
-    global kParams, actualVarId
-    quad = ('ERA', -1, -1, actualVarId)
+    global kParams, actualCall
+    quad = ('ERA', -1, -1, actualCall)
+    print(quad)
     cuadruplos.append(quad)
     kParams = 1
 
 # Verify kParams matches the actual # of parameters defined 
 def p_verify_params(p):
     '''verify_params : '''
-    global kParams, actualVarId
-    if (kParams != procedures.get_numParams(actualVarId)):
-        print("Error in parameters, function calling:", actualVarId)
+    global kParams, actualCall
+    if (kParams != procedures.get_numParams(actualCall)):
+        print("Error in parameters, function calling:", actualCall)
         sys.exit()
 
 # Generate GOSUB quad
 def p_generate_gosub_quad(p):
     '''generate_gosub_quad : '''
-    global actualVarId
-    quad = ('GOSUB', actualVarId, -1, procedures.get_quad_num(actualVarId))
+    global actualCall
+    quad = ('GOSUB', actualCall, -1, procedures.get_quad_num(actualCall))
+    print(quad)
     cuadruplos.append(quad)
 
 def p_generate_temp_var(p):
     '''generate_temp_var : '''
     # Every time we call a function we need to store the value it returns in a tmp variable and append it to the operands list.
-    global pOperandos, pTipos
-    result = avail.next()
-    global tmpCounter
-    tmpCounter += 1
-    procedures.add_tmp_type(actualFunId, actualVarType)
-    if actualVarType == 'int':
-        temporales[result] = virtualMemoryDirs['tempint']
-        virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
-    elif actualVarType == 'float':
-        temporales[result] = virtualMemoryDirs['tempfloat']
-        virtualMemoryDirs['tempfloat'] = virtualMemoryDirs['tempfloat'] + 1
-    elif actualVarType == 'char':
-        temporales[result] = virtualMemoryDirs['tempfloat']
-        virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
-    quad = ('RET', temporales[result], -1, procedures.get_var_memory_loc('global', actualVarId))
-    cuadruplos.append(quad)
-    pOperandos.append(temporales[result])
-    pTipos.append(actualVarType)
+    print('theactualfuntype', actualCallType)
+    if(actualCallType != 'void'):
+        global pOperandos, pTipos
+        result = avail.next()
+        global tmpCounter
+        tmpCounter += 1
+        procedures.add_tmp_type(actualFunId, actualCallType)
+        if actualCallType == 'int':
+            temporales[result] = virtualMemoryDirs['tempint']
+            virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
+        elif actualCallType == 'float':
+            temporales[result] = virtualMemoryDirs['tempfloat']
+            virtualMemoryDirs['tempfloat'] = virtualMemoryDirs['tempfloat'] + 1
+        elif actualCallType == 'char':
+            temporales[result] = virtualMemoryDirs['tempfloat']
+            virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
+        quad = ('RET', temporales[result], -1, procedures.get_var_memory_loc('global', actualCall))
+        print(quad)
+        cuadruplos.append(quad)
+        pOperandos.append(temporales[result])
+        pTipos.append(actualCallType)
 
 def p_LLAMDA_AUX(p):
     '''LLAMADA_AUX : EXPRESION generate_quad_parameter LLAMADA_AUX_2
@@ -526,13 +536,14 @@ def p_add_paramater(p):
     currentArg = pOperandos.pop()
     currentArgType = pTipos.pop()
     # Verify if kParams hasn't passed the number of parameters defined
-    if (kParams <= procedures.get_numParams(actualVarId)):
-        argumentType = procedures.get_parameter_type(actualVarId, kParams-1)
+    if (kParams <= procedures.get_numParams(actualCall)):
+        argumentType = procedures.get_parameter_type(actualCall, kParams-1)
         if (currentArgType != argumentType):
-            print("Parameter type mismatch, calling function:", actualVarId)
+            print("Parameter type mismatch, calling function:", actualCall)
             sys.exit()
-        dirDest = procedures.get_param_dir(actualVarId, kParams)
+        dirDest = procedures.get_param_dir(actualCall, kParams)
         quad = ('PARAMETER', currentArg, -1, dirDest)
+        print(quad)
         cuadruplos.append(quad)
     else:
         print("Error in parameters, calling function:", actualVarId)
@@ -565,6 +576,7 @@ def p_add_end_while_from(p):
     end = pSaltos.pop()
     jump = pSaltos.pop()
     quad = ('GOTO', -1, -1, jump)
+    print(quad)
     cuadruplos.append(quad)
     fill_quad(end)
 
@@ -609,6 +621,7 @@ def p_add_else(p):
     '''add_else : '''
     global pSaltos, cuadruplos
     quad = ('GOTO', -1, -1, -1)
+    print(quad)
     cuadruplos.append(quad)
     jump = pSaltos.pop()
     pSaltos.append(len(cuadruplos)-1)
@@ -643,6 +656,7 @@ def p_add_return_quad(p):
             if resultado_type == actualFunType:
                 quad = (op, -1, -1, resultado)
                 # print("cuadruplo: " + str(quad))
+                print(quad)
                 cuadruplos.append(quad)
             else:
                 print("Type missmatch")
@@ -774,6 +788,7 @@ def quad_generator_4args():
             virtualMemoryDirs['tempbool'] = virtualMemoryDirs['tempbool'] + 1
         quad = (op, operando_izquierdo, operando_derecho, temporales[result])
         # print('cuadruplo: ' + str(quad))
+        print(quad)
         cuadruplos.append(quad)
         pOperandos.append(temporales[result])
         pTipos.append(result_type)
@@ -788,6 +803,7 @@ def quad_generator_2args():
     operando_type = pTipos.pop()
     quad = (op, -1, -1, operando)
     # print('cuadruplo: ' + str(quad))
+    print(quad)
     cuadruplos.append(quad)
     pOperandos.append(operando)
     pTipos.append(operando_type)
@@ -799,6 +815,7 @@ def add_if_while_from(goto):
     if exp_type == 'bool':
         result = pOperandos.pop()
         quad = (goto, result, -1, -1)
+        print(quad)
         cuadruplos.append(quad)
         pSaltos.append(len(cuadruplos)-1)
         # print('cuadruplo: ' + str(quad))

@@ -1,5 +1,6 @@
 # Virtual Machine for duck ++
 import sys
+from Memoria import Memoria
 
 cuadruplos = []
 memoria = {}
@@ -9,6 +10,8 @@ pilaFunciones = []
 pSaltos = []
 ret_var = []
 nextFun = []
+
+memoriaGlobal = Memoria()
 
 # Verify if dir is local
 def isLocal(dir):
