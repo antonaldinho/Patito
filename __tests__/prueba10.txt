@@ -27,5 +27,5 @@ main() {
     read(k);
     i = 5;
     j = i * 2 + i;
-    dos(j - 1, j);
+    dos(j - 1, j)
 }

@@ -86,12 +86,12 @@ t_INV = r'\?'
 
 def t_CTE_FLOAT(t):
     # r'\[-+]?\d+|(\.\d+|\d+\.\d+)([eE][-+]?\d+)?'
-    r'[-+]?[0-9]+[.][0-9]+'
+    r'[-]?[0-9]+[.][0-9]+'
     t.value = float(t.value)
     return t
     
 def t_CTE_INT(t):
-    r'[-+]?[0-9]+'
+    r'[-]?[0-9]+'
     t.value = int(t.value)
     return t
 

@@ -16,19 +16,35 @@ class DirectorioProcedimientos(object):
                 'vars': TablaVariables(),
                 'numVars': numVars,
                 'quadNum': quad,
-                'numTmp': 0,
-                'intVars': 0,
-                'floatVars': 0,
-                'charVars': 0,
-                'intTmp': 0,
-                'floatTmp': 0,
-                'charTmp': 0,
-                'boolTmp': 0
+                'tmps': []
             }
             #print("added function: " + name)
         else:
             print("function" + name + " already declared")
     
+    def add_tmp(self, name, tmp):
+        self.list[name]['tmps'].append(tmp)
+    
+    def set_type_spaces(self, fName):
+        self.list[fName]['spaces'] = {
+            'localint': self.list[fName]['vars'].get_spaces('int'),
+            'localfloat': self.list[fName]['vars'].get_spaces('float'),
+            'localchar': self.list[fName]['vars'].get_spaces('char'),
+            'tmpint':  self.get_space(fName,'int'),
+            'tmpfloat': self.get_space(fName, 'float'),
+            'tmpchar': self.get_space(fName, 'char'),
+            'tmpbool': self.get_space(fName, 'bool'),
+            'tmppointer': self.get_space(fName, 'pointer'),
+        }
+        print('type spaces', fName , self.list[fName]['spaces'] )
+    
+    def get_space(self, fName, tipo):
+        counter = 0
+        for element in self.list[fName]['tmps']:
+            if element == tipo:
+                counter += 1
+        return counter
+
     def search(self, name):
         return name in self.list
 
@@ -81,8 +97,8 @@ class DirectorioProcedimientos(object):
         else:
             self.list[fName]['vars'].add_var(vName, vType, vMemoryLoc)
             self.list[fName]['numVars'] = self.list[fName]['numVars'] + 1
-            type = vType + 'Vars'
-            self.list[fName][type] = self.list[fName][type] +1
+            # type = vType + 'Vars'
+            # self.list[fName][type] = self.list[fName][type] +1
     
     def add_param(self, fName, vName, vType):
         self.list[fName]['numParams'] = self.list[fName]['numParams'] + 1
@@ -112,13 +128,60 @@ class DirectorioProcedimientos(object):
     def print_proc(self):
         for elem in self.list:
             print(elem, self.list[elem])
+    
+    def make_var_array(self, fName, vName):
+        self.list[fName]['vars'].make_array(vName)
+    
+    def add_dim(self, fName, vName):
+        self.list[fName]['vars'].add_dim(vName)
+    
+    def add_lsup(self, fName, vName, lsup):
+        self.list[fName]['vars'].add_lsup(vName, lsup)
+
+    def set_r(self, fName, vName, tipo):
+        self.list[fName]['vars'].set_r(vName, tipo)
+
+    def add_dimention(self, fName, vName):
+        self.list[fName]['vars'].add_dim(vName)
+    
+    def set_all_nodes(self, fName, vName):
+        self.list[fName]['vars'].set_all_nodes(vName)
+    
+    def get_array_size(self, fName, vName):
+        return(self.list[fName]['vars'].get_array_size(vName))
+    
+    def is_dimentioned(self, fName, vName):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].is_dimentioned(vName))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].is_dimentioned(vName))
+    
+    def get_num_dims(self, fName, vName):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].get_num_dims(vName))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].get_num_dims(vName))
+    
+    def get_first_node(self, fName, vName, dim):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].get_first_node(vName, dim))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].get_first_node(vName, dim))
+    
+    def get_node(self, fName, vName, dim):
+        if self.list[fName]['vars'].search(vName) == True:
+            return(self.list[fName]['vars'].get_node(vName, dim))
+        elif self.list['global']['vars'].search(vName):
+            return(self.list['global']['vars'].get_node(vName, dim))
         
     # Print for .dout file
     def print_out_proc(self):  
         for elem in self.list:
+            print('the elem',elem)
             print(elem, str(self.list[elem]['numVars']), str(self.list[elem]['quadNum']), end=' ') 
-            print(str(self.list[elem]['intVars']), str(self.list[elem]['floatVars']), str(self.list[elem]['charVars']), end=' ')
-            print(str(self.list[elem]['intTmp']), str(self.list[elem]['floatTmp']), str(self.list[elem]['charTmp']), str(self.list[elem]['boolTmp']))
+            print(str(self.list[elem]['spaces']['localint']), str(self.list[elem]['spaces']['localfloat']), str(self.list[elem]['spaces']['localchar']), end=' ')
+            print(str(self.list[elem]['spaces']['tmpint']), str(self.list[elem]['spaces']['tmpfloat']), str(self.list[elem]['spaces']['tmpchar']), str(self.list[elem]['spaces']['tmpbool']), str(self.list[elem]['spaces']['tmppointer']))
+
 
 # if __name__ == "__main__":
 #     print("calando tests...")
