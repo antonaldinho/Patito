@@ -1,4 +1,4 @@
-program prueba01;
+program prueba06;
 var int i; char j;
 
 function float myFunction (int param1)

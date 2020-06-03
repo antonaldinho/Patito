@@ -1,0 +1,20 @@
+program prueba08;
+var  int a, b, c;
+
+function int suma(int i)
+{
+    if (b < i) {
+        print(i*100);
+    } else {
+        print (b*1000);
+    }
+    return i;
+}
+
+main ()
+{
+    a = 5;
+    b = 10;
+    c = suma(a);
+    print(a, b, c);
+}

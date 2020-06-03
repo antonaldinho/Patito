@@ -6,6 +6,7 @@ import queue as Queue
 from cuboSemantico import cuboSemantico
 from Avail import Avail
 
+program_name = ''
 actualVarType = ''
 actualVarId = ''
 actualFunType = ''
@@ -30,6 +31,9 @@ numDims = 0
 pilaNodos = []
 
 theVar = [] #variable para trackear la variable que se esta llamando
+
+actualCall = ''
+actualCallType = ''
 
 #direcciones de memoria virtual para variables
 virtualMemoryDirs = {
@@ -75,8 +79,19 @@ operations = {
 isGlobal = True
 
 def p_PROGRAMA(p):
-    '''programa : add_global_function PROGRAM IDENTIFIER SEMICOLON DECLARACIONES FUNCIONES add_main_function PRINCIPAL'''
+    '''programa : add_global_function PROGRAM IDENTIFIER program_name SEMICOLON generate_gomain_quad make_actual_global DECLARACIONES FUNCIONES add_main_function add_main_counter PRINCIPAL'''
     p[0] = "PROGRAM COMPILED"
+
+def p_program_name(p):
+    '''program_name : '''
+    global program_name
+    program_name = p[-1]
+
+def p_make_actual_global(p):
+    '''make_actual_global : '''
+    global actualFunId, actualFunType
+    actualFunId = 'global'
+    actualFunType = 'void'
 
 def p_add_global_function(p):
     '''add_global_function : '''
@@ -90,11 +105,29 @@ def p_add_global_function(p):
 def p_add_main_function(p):
     '''add_main_function : '''
     global actualFunId
-    actualFunId = 'main'
+    actualFunId = 'global'
     global actualFunType
     actualFunType = 'void'
-    global procedures
-    procedures.add_function(actualFunId, actualFunType, 0, [], [], 0, None)
+    # global procedures
+    # procedures.add_function(actualFunId, actualFunType, 0, [], [], 0, None)
+
+def p_generate_gomain_quad(p):
+    '''generate_gomain_quad : '''
+    quad = ('GOMAIN', 'main', -1, None)
+    cuadruplos.append(quad)
+    cuadruplosIds.append(quad)
+
+def p_add_main_counter(p):
+    '''add_main_counter : '''
+    procedures.add_quad_counter('global' if actualFunId == 'main' else actualFunId, len(cuadruplos))
+    temp = list(cuadruplos[0])
+    temp[3] = procedures.get_quad_num('global' if actualFunId == 'main' else actualFunId)
+    cuadruplos[0] = tuple(temp)
+
+    temp = list(cuadruplosIds[0])
+    temp[3] = procedures.get_quad_num('global' if actualFunId == 'main' else actualFunId)
+    cuadruplosIds[0] = tuple(temp)
+    
 
 def p_DECLARACIONES(p):
     '''DECLARACIONES : VAR DECLARACIONES_1
@@ -207,17 +240,21 @@ def p_release_func(p):
     virtualMemoryDirs['tempchar'] = 17000
     virtualMemoryDirs['tempbool'] = 19000
     global procedures
+    global tmpCounter
+    # print('num tmp vars: ' + str(tmpCounter) + ' in ' + str(actualFunId))
+    
+    procedures.add_num_tmp(actualFunId, tmpCounter)
+    tmpCounter = 0
     procedures.set_type_spaces(actualFunId)
     procedures.delete_var_table(actualFunId)
     # Generate an action to end the function (ENDFunc)
     quad = ('ENDPROC', -1, -1, -1)
+    
     cuadruplos.append(quad)
     cuadruplosIds.append(quad)
     # print("cuadruplo: " + str(quad))
     # Insert into DirFunc the number of temporal vars used.
-    global tmpCounter
-    procedures.add_num_tmp(actualFunId, tmpCounter)
-    tmpCounter = 0
+    
 
 def p_PARAMS(p):
     '''PARAMS : TIPO_VAR PARAMS_2
@@ -498,9 +535,11 @@ def p_F(p):
 
 def p_l_paren_expression(p):
     '''l_paren_expression : '''
+    pOperadores.append(p[-1])
 
 def p_r_paren_expression(p):
     '''r_paren_expression : '''
+    pOperadores.pop()
 
 def p_add_operando_cte(p):
     '''add_operando_cte : '''
@@ -510,8 +549,10 @@ def p_add_operando_cte(p):
     # The constants are inserted into the const table
     if tipo == int:
         pTipos.append('int')
-        constantes[str(p[-1])] = virtualMemoryDirs['constint']
-        virtualMemoryDirs['constint'] += 1
+
+        if str(p[-1]) not in constantes:
+            constantes[str(p[-1])] = virtualMemoryDirs['constint']
+            virtualMemoryDirs['constint'] += 1
         obj = {
             'id': str(p[-1]),
             'mem': constantes[str(p[-1])]
@@ -519,8 +560,9 @@ def p_add_operando_cte(p):
         pOperandos.append(obj)
     elif tipo == float:
         pTipos.append('float')
-        constantes[str(p[-1])] = virtualMemoryDirs['constfloat']
-        virtualMemoryDirs['constfloat'] += 1
+        if str(p[-1]) not in constantes:
+            constantes[str(p[-1])] = virtualMemoryDirs['constfloat']
+            virtualMemoryDirs['constfloat'] += 1
         obj = {
             'id': str(p[-1]),
             'mem': constantes[str(p[-1])]
@@ -529,14 +571,14 @@ def p_add_operando_cte(p):
     elif tipo == str:
         pTipos.append('string')
         string = p[-1].replace('"', '')
-        constantes[string] = virtualMemoryDirs['conststring']
-        virtualMemoryDirs['conststring'] += 1
+        if string not in constantes:
+            constantes[string] = virtualMemoryDirs['conststring']
+            virtualMemoryDirs['conststring'] += 1
         obj = {
-            'id': string,
-            'mem': constantes[string]
+            'id': str(p[-1]),
+            'mem': constantes[str(p[-1])]
         }
         pOperandos.append(obj)
-
     # print('added operando: ' + str(p[-1]))
 
 def p_add_operando_char(p):
@@ -544,8 +586,9 @@ def p_add_operando_char(p):
     global pOperandos
     global pOperadores
     pTipos.append('char')
-    constantes[p[-1]] = virtualMemoryDirs['constchar']
-    virtualMemoryDirs['constchar'] += 1
+    if p[-1] not in constantes:
+        constantes[p[-1]] = virtualMemoryDirs['constchar']
+        virtualMemoryDirs['constchar'] += 1
     obj = {            
         'id': p[-1],
         'mem': constantes[p[-1]]
@@ -586,23 +629,24 @@ def p_add_operando_var(p):
     # print('added operando: ' + str(p[-1]))
 
 def p_LLAMADA(p):
-    '''LLAMADA : IDENTIFIER search_func L_PAREN generate_era_quad LLAMADA_AUX verify_params R_PAREN generate_gosub_quad generate_temp_var'''
+    '''LLAMADA : IDENTIFIER search_func l_paren_expression L_PAREN generate_era_quad LLAMADA_AUX verify_params R_PAREN r_paren_expression generate_gosub_quad generate_temp_var'''
 
 # Verify that function called already exits
 def p_search_func(p):
     '''search_func : '''
-    global actualVarId, actualVarType
-    actualVarId = p[-1]
-    if(not procedures.search(actualVarId)):
-        print("Procedure '", actualVarId, "' not found")
+    global actualCall, actualCallType
+    actualCall = p[-1]
+    if(not procedures.search(actualCall)):
+        print("Procedure '", actualCall, "' not found")
         sys.exit()
-    actualVarType = procedures.get_function_type(actualVarId)
+    actualCallType = procedures.get_function_type(actualCall)
 
 # Generate ERA quad 
 def p_generate_era_quad(p):
     '''generate_era_quad : '''
-    global kParams, actualVarId
-    quad = ('ERA', -1, -1, actualVarId)
+    global kParams, actualCall
+    quad = ('ERA', -1, -1, actualCall)
+    
     cuadruplos.append(quad)
     cuadruplosIds.append(quad)
     kParams = 1
@@ -610,46 +654,50 @@ def p_generate_era_quad(p):
 # Verify kParams matches the actual # of parameters defined 
 def p_verify_params(p):
     '''verify_params : '''
-    global kParams, actualVarId
-    if (kParams != procedures.get_numParams(actualVarId)):
-        print("Error in parameters, function calling:", actualVarId)
+    global kParams, actualCall
+    if (kParams != procedures.get_numParams(actualCall)):
+        print("Error in parameters, function calling:", actualCall)
         sys.exit()
 
 # Generate GOSUB quad
 def p_generate_gosub_quad(p):
     '''generate_gosub_quad : '''
-    global actualVarId
-    quad = ('GOSUB', actualVarId, -1, procedures.get_quad_num(actualVarId))
+    global actualCall
+    quad = ('GOSUB', actualCall, -1, procedures.get_quad_num(actualCall))
+    
     cuadruplos.append(quad)
     cuadruplosIds.append(quad)
 
 def p_generate_temp_var(p):
     '''generate_temp_var : '''
     # Every time we call a function we need to store the value it returns in a tmp variable and append it to the operands list.
-    global pOperandos, pTipos
-    result = avail.next()
-    global tmpCounter
-    tmpCounter += 1
-    procedures.add_tmp(actualFunId, actualVarType)
-    if actualVarType == 'int':
-        temporales[result] = virtualMemoryDirs['tempint']
-        virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
-    elif actualVarType == 'float':
-        temporales[result] = virtualMemoryDirs['tempfloat']
-        virtualMemoryDirs['tempfloat'] = virtualMemoryDirs['tempfloat'] + 1
-    elif actualVarType == 'char':
-        temporales[result] = virtualMemoryDirs['tempfloat']
-        virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
-    quad = ('=', temporales[result], -1, procedures.get_var_memory_loc('global', actualVarId))
-    quad2 = ('=', result, -1, actualVarId)
-    cuadruplos.append(quad)
-    cuadruplosIds.append(quad2)
-    obj = {
-        'id': result,
-        'mem': temporales[result]
-    }
-    pOperandos.append(obj)
-    pTipos.append(actualVarType)
+    print('theactualfuntype', actualCallType)
+    if(actualCallType != 'void'):
+        global pOperandos, pTipos
+        result = avail.next()
+        global tmpCounter
+        tmpCounter += 1
+        procedures.add_tmp(actualFunId, actualCallType)
+        if actualCallType == 'int':
+            temporales[result] = virtualMemoryDirs['tempint']
+            virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
+        elif actualCallType == 'float':
+            temporales[result] = virtualMemoryDirs['tempfloat']
+            virtualMemoryDirs['tempfloat'] = virtualMemoryDirs['tempfloat'] + 1
+        elif actualCallType == 'char':
+            temporales[result] = virtualMemoryDirs['tempfloat']
+            virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
+        quad = ('RET', temporales[result], -1, procedures.get_var_memory_loc('global', actualCall))
+        quad2 = ('RET', result, -1,  actualCall)
+        
+        cuadruplos.append(quad)
+        cuadruplosIds.append(quad2)
+        obj = {
+            'id': result,
+            'mem': temporales[result]
+        }
+        pOperandos.append(obj)
+        pTipos.append(actualCallType)
 
 def p_LLAMDA_AUX(p):
     '''LLAMADA_AUX : EXPRESION generate_quad_parameter LLAMADA_AUX_2
@@ -668,13 +716,16 @@ def p_add_paramater(p):
     currentArg = pOperandos.pop()
     currentArgType = pTipos.pop()
     # Verify if kParams hasn't passed the number of parameters defined
-    if (kParams <= procedures.get_numParams(actualVarId)):
-        argumentType = procedures.get_parameter_type(actualVarId, kParams-1)
+    if (kParams <= procedures.get_numParams(actualCall)):
+        '''TODO: Checar este pedo en el actualFunId o actualCall'''
+        argumentType = procedures.get_parameter_type(actualCall, kParams-1)
         if (currentArgType != argumentType):
-            print("Parameter type mismatch, calling function:", actualVarId)
+            print("Parameter type mismatch, calling function:", actualCall)
             sys.exit()
-        quad = ('PARAMETER', currentArg['mem'], -1, kParams)
+        dirDest = procedures.get_param_dir(actualCall, kParams)
+        quad = ('PARAMETER', currentArg['mem'], -1, dirDest)
         quad2 = ('PARAMETER', currentArg['id'], -1, kParams)
+        
         cuadruplos.append(quad)
         cuadruplosIds.append(quad2)
     else:
@@ -708,6 +759,7 @@ def p_add_end_while_from(p):
     end = pSaltos.pop()
     jump = pSaltos.pop()
     quad = ('GOTO', -1, -1, jump)
+    
     cuadruplos.append(quad)
     cuadruplosIds.append(quad)
     fill_quad(end)
@@ -753,6 +805,7 @@ def p_add_else(p):
     '''add_else : '''
     global pSaltos, cuadruplos
     quad = ('GOTO', -1, -1, -1)
+    
     cuadruplos.append(quad)
     cuadruplosIds.append(quad)
     jump = pSaltos.pop()
@@ -788,6 +841,7 @@ def p_add_return_quad(p):
             if resultado_type == actualFunType:
                 quad = (op, -1, -1, resultado['mem'])
                 # print("cuadruplo: " + str(quad))
+                
                 cuadruplos.append(quad)
                 quad2 = (op, -1, -1, resultado['id'])
                 cuadruplosIds.append(quad2)
@@ -896,6 +950,8 @@ def p_add_var(p):
             memoryType = 'global' + actualVarType
         else:
             memoryType = 'local' + actualVarType
+        
+        print(actualFunId, actualVarId, actualVarType, virtualMemoryDirs[memoryType])
         procedures.add_var(actualFunId, actualVarId, actualVarType, virtualMemoryDirs[memoryType])
         virtualMemoryDirs[memoryType] = virtualMemoryDirs[memoryType] + 1
     else:
@@ -930,6 +986,7 @@ def quad_generator_4args():
         quad = (op, operando_izquierdo['mem'], operando_derecho['mem'], temporales[result])
         quad2 = (op, operando_izquierdo['id'], operando_derecho['id'], result)
         # print('cuadruplo: ' + str(quad))
+        
         cuadruplos.append(quad)
         cuadruplosIds.append(quad2)
         obj = {
@@ -951,6 +1008,7 @@ def quad_generator_2args():
     quad = (op, -1, -1, operando['mem'])
     quad2 = (op, -1, -1, operando['id'])
     # print('cuadruplo: ' + str(quad))
+    
     cuadruplos.append(quad)
     cuadruplosIds.append(quad2)
     pOperandos.append(operando)
@@ -964,6 +1022,7 @@ def add_if_while_from(goto):
         result = pOperandos.pop()
         quad = (goto, result['mem'], -1, -1)
         quad2 = (goto, result['id'], -1, -1)
+        
         cuadruplos.append(quad)
         cuadruplosIds.append(quad2)
         pSaltos.append(len(cuadruplos)-1)
@@ -976,6 +1035,7 @@ def fill_quad(i):
     global cuadruplos
     temp = list(cuadruplos[i])
     temp[3] = len(cuadruplos)
+    # print(temp, temp[3])
     cuadruplos[i] = tuple(temp)
     '''Para los ids'''
     temp = list(cuadruplosIds[i])
@@ -985,16 +1045,40 @@ def fill_quad(i):
 
 def printCuadruplos():
     for (i, elem) in enumerate(cuadruplosIds):
-        print(i, elem)
+        print (i, elem)
     
     for (i, elem) in enumerate(cuadruplos):
         print(i, elem)
-    #procedures.print_proc() 
+    procedures.print_proc()
+    print(constantes)
 
 # Function for resetting the avail
 def create_new_avail():
     global avail
     avail = Avail()
+
+# Function to create output file for VM
+def createDout():
+    global program_name
+    orig_stdout = sys.stdout
+    filename = str(program_name + ".dout")
+    print(filename)
+    file = open(filename, "w")
+    sys.stdout = file
+
+    print("---QUADS---")
+    for quad in cuadruplos:
+        for elem in quad:
+            print(str(elem), end = ' ')
+        print()
+    print("---PROC---")
+    procedures.print_out_proc()
+    print("---CTES---")
+    for cte in constantes:
+        print(cte, constantes[cte])
+
+    sys.stdout = orig_stdout
+    file.close()
 
 precedence = (
     ('left', 'PLUS', 'MINUS'),
@@ -1007,17 +1091,18 @@ parser = yacc.yacc()
 
 
 if __name__ == '__main__':
-	if (len(sys.argv) > 1):
-		file = sys.argv[1]
-		try:
-			f = open(file,'r')
-			data = f.read()
-			f.close()
-			if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
-				print ("Finished compiling")
-				printCuadruplos()
+    if (len(sys.argv) > 1):
+        file = sys.argv[1]
+        try:
+            f = open(file,'r')
+            data = f.read()
+            f.close()
+            if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
+                print ("Finished compiling")
+                printCuadruplos()
+                createDout()
 
-		except EOFError:
-	   		print(EOFError)
-	else:
-		print('File missing')
+        except EOFError:
+            print(EOFError)
+    else:
+        print('File missing')

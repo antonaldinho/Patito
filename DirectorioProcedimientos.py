@@ -12,6 +12,7 @@ class DirectorioProcedimientos(object):
                 'numParams': numParams,
                 'typeParams': typeParams,
                 'nameParams': nameParams,
+                'paramLocs': [],
                 'vars': TablaVariables(),
                 'numVars': numVars,
                 'quadNum': quad,
@@ -35,6 +36,7 @@ class DirectorioProcedimientos(object):
             'tmpbool': self.get_space(fName, 'bool'),
             'tmppointer': self.get_space(fName, 'pointer'),
         }
+        print('type spaces', fName , self.list[fName]['spaces'] )
     
     def get_space(self, fName, tipo):
         counter = 0
@@ -84,6 +86,9 @@ class DirectorioProcedimientos(object):
 
     def get_quad_num(self, fName):
         return self.list[fName]['quadNum']
+    
+    def get_param_dir(self, fName, pPos):
+        return self.list[fName]['paramLocs'][pPos-1]
 
     def add_var(self, fName, vName, vType, vMemoryLoc):
         if(self.list[fName]['vars'].search(vName) == True):
@@ -92,14 +97,23 @@ class DirectorioProcedimientos(object):
         else:
             self.list[fName]['vars'].add_var(vName, vType, vMemoryLoc)
             self.list[fName]['numVars'] = self.list[fName]['numVars'] + 1
+            # type = vType + 'Vars'
+            # self.list[fName][type] = self.list[fName][type] +1
     
     def add_param(self, fName, vName, vType):
         self.list[fName]['numParams'] = self.list[fName]['numParams'] + 1
         self.list[fName]['nameParams'].append(vName)
         self.list[fName]['typeParams'].append(vType)
+        self.list[fName]['paramLocs'].append(self.get_var_memory_loc(fName, vName))
     
     def add_quad_counter(self, fName, quad):
         self.list[fName]['quadNum'] = quad
+
+    # Add 1 to tmp var counter by type
+    def add_tmp_type(self, fName, vType):
+        if vType != 'void':
+            type = vType + 'Tmp'
+            self.list[fName][type] = self.list[fName][type]+1
 
     def delete_var_table(self, fName):
         self.list[fName]['vars'] = None
@@ -112,11 +126,8 @@ class DirectorioProcedimientos(object):
         self.list[fName]['numTmp'] = numTmpVars
 
     def print_proc(self):
-        for (elem) in (self.list):
-            print(elem)
-            self.list_vars(elem)
-        
-        print(self.list)
+        for elem in self.list:
+            print(elem, self.list[elem])
     
     def make_var_array(self, fName, vName):
         self.list[fName]['vars'].make_array(vName)
@@ -163,6 +174,14 @@ class DirectorioProcedimientos(object):
         elif self.list['global']['vars'].search(vName):
             return(self.list['global']['vars'].get_node(vName, dim))
         
+    # Print for .dout file
+    def print_out_proc(self):  
+        for elem in self.list:
+            print('the elem',elem)
+            print(elem, str(self.list[elem]['numVars']), str(self.list[elem]['quadNum']), end=' ') 
+            print(str(self.list[elem]['spaces']['localint']), str(self.list[elem]['spaces']['localfloat']), str(self.list[elem]['spaces']['localchar']), end=' ')
+            print(str(self.list[elem]['spaces']['tmpint']), str(self.list[elem]['spaces']['tmpfloat']), str(self.list[elem]['spaces']['tmpchar']), str(self.list[elem]['spaces']['tmpbool']), str(self.list[elem]['spaces']['tmppointer']))
+
 
 # if __name__ == "__main__":
 #     print("calando tests...")

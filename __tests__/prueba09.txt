@@ -1,0 +1,23 @@
+program prueba09;
+var  int a, b, c;
+
+function int recursion (int a) {
+    if (10 == 4 || a!=4) {
+        print(a);
+        a = recursion(a + 1);
+    }
+    return a;
+}
+
+main ()
+{
+    a = 0;
+    b = 10;
+    if (10 == 4) {
+        print(a,b);
+    } else {
+        print("tamagochi");
+    }
+    b = recursion(a+ 1);
+    print(b*3);
+}

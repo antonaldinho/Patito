@@ -1,4 +1,4 @@
-program prueba01;
+program prueba04;
 var
 	int a, b;
 	int c;
@@ -10,12 +10,14 @@ var int s1;
 {
     s1 = 44;
     print(s1);
+	return 0;
 }
 function float myFunction (float param1, int param2, int param3, float p4)
 var float f1, f2;
 {
 	f1 = 10.2;
 	f2 = 0.8;
+    print("YA ESTAMOS");
 	param1 = f1*f2*param1;
 	return param1;
 }
@@ -24,25 +26,25 @@ function int suma (int p1)
 var int s1;
 {
     s1 = 1;
+    print("YA ESTAMOS");
     imprime()
 	return p1 + s1;
 }
 main ()
 {
 	a = 1 * 2;
-	b = (2 +4) / 8;
+	b = (2+ 4) / 8;
 	c = b + a;
-	lol = 'D';
 
     suma(1);
     result = a*b*c;
     myFunction(result, b, c, 4.4);
 
 	while (a < c) do {
-		b = b+1;
+		b = b+ 1;
 		a = a + 1;
 		print(b);
-		print(1+2+3);
+		print(1+ 2+ 3+ 4.4+ 10.2+ 0.8+ 0.8+ 4.4);
 	} 
     imprime();
 	a = a+b+c;
