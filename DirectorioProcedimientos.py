@@ -12,6 +12,7 @@ class DirectorioProcedimientos(object):
                 'numParams': numParams,
                 'typeParams': typeParams,
                 'nameParams': nameParams,
+                'paramLocs': [],
                 'vars': TablaVariables(),
                 'numVars': numVars,
                 'quadNum': quad,
@@ -69,6 +70,9 @@ class DirectorioProcedimientos(object):
 
     def get_quad_num(self, fName):
         return self.list[fName]['quadNum']
+    
+    def get_param_dir(self, fName, pPos):
+        return self.list[fName]['paramLocs'][pPos-1]
 
     def add_var(self, fName, vName, vType, vMemoryLoc):
         if(self.list[fName]['vars'].search(vName) == True):
@@ -84,14 +88,16 @@ class DirectorioProcedimientos(object):
         self.list[fName]['numParams'] = self.list[fName]['numParams'] + 1
         self.list[fName]['nameParams'].append(vName)
         self.list[fName]['typeParams'].append(vType)
+        self.list[fName]['paramLocs'].append(self.get_var_memory_loc(fName, vName))
     
     def add_quad_counter(self, fName, quad):
         self.list[fName]['quadNum'] = quad
 
     # Add 1 to tmp var counter by type
     def add_tmp_type(self, fName, vType):
-        type = vType + 'Tmp'
-        self.list[fName][type] = self.list[fName][type]+1
+        if vType != 'void':
+            type = vType + 'Tmp'
+            self.list[fName][type] = self.list[fName][type]+1
 
     def delete_var_table(self, fName):
         self.list[fName]['vars'] = None

@@ -95,7 +95,7 @@ def p_add_main_function(p):
 
 def p_generate_gomain_quad(p):
     '''generate_gomain_quad : '''
-    quad = ('GOSUB', 'main', -1, None)
+    quad = ('GOMAIN', 'main', -1, None)
     cuadruplos.append(quad)
 
 def p_add_main_counter(p):
@@ -452,7 +452,7 @@ def p_add_operando_var(p):
     # print('added operando: ' + str(p[-1]))
 
 def p_LLAMADA(p):
-    '''LLAMADA : IDENTIFIER search_func L_PAREN generate_era_quad LLAMADA_AUX verify_params R_PAREN generate_gosub_quad generate_temp_var'''
+    '''LLAMADA : IDENTIFIER search_func l_paren_expression L_PAREN generate_era_quad LLAMADA_AUX verify_params R_PAREN r_paren_expression generate_gosub_quad generate_temp_var'''
 
 # Verify that function called already exits
 def p_search_func(p):
@@ -504,7 +504,7 @@ def p_generate_temp_var(p):
     elif actualVarType == 'char':
         temporales[result] = virtualMemoryDirs['tempfloat']
         virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
-    quad = ('=', temporales[result], -1, procedures.get_var_memory_loc('global', actualVarId))
+    quad = ('RET', temporales[result], -1, procedures.get_var_memory_loc('global', actualVarId))
     cuadruplos.append(quad)
     pOperandos.append(temporales[result])
     pTipos.append(actualVarType)
@@ -531,7 +531,8 @@ def p_add_paramater(p):
         if (currentArgType != argumentType):
             print("Parameter type mismatch, calling function:", actualVarId)
             sys.exit()
-        quad = ('PARAMETER', currentArg, -1, kParams)
+        dirDest = procedures.get_param_dir(actualVarId, kParams)
+        quad = ('PARAMETER', currentArg, -1, dirDest)
         cuadruplos.append(quad)
     else:
         print("Error in parameters, calling function:", actualVarId)
