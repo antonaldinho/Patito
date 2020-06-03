@@ -10,9 +10,18 @@ class TablaVariables(object):
             'num_dimentions': 0,
             'dim': None,
             'r': None,
-            'k': None
+            'k': None,
+            'size': 1,
         }
         #print("added var: " + str(name) + " with type " + str(type))
+    
+    #method to return all the types in an array
+    def get_spaces(self, tipo):
+        counter = 0
+        for key in self.list:
+            if self.list[key]['type'] == tipo:    
+                counter += self.list[key]['size']
+        return counter
     
     def search(self, name):
         return name in self.list.keys()

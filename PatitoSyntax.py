@@ -207,6 +207,7 @@ def p_release_func(p):
     virtualMemoryDirs['tempchar'] = 17000
     virtualMemoryDirs['tempbool'] = 19000
     global procedures
+    procedures.set_type_spaces(actualFunId)
     procedures.delete_var_table(actualFunId)
     # Generate an action to end the function (ENDFunc)
     quad = ('ENDPROC', -1, -1, -1)
@@ -215,7 +216,6 @@ def p_release_func(p):
     # print("cuadruplo: " + str(quad))
     # Insert into DirFunc the number of temporal vars used.
     global tmpCounter
-    # print('num tmp vars: ' + str(tmpCounter) + ' in ' + str(actualFunId))
     procedures.add_num_tmp(actualFunId, tmpCounter)
     tmpCounter = 0
 
@@ -262,7 +262,6 @@ def p_generate_equal_quad(p):
             operando_derecho_type = pTipos.pop()
             operando_izquierdo = pOperandos.pop()
             operando_izquierdo_type = pTipos.pop()
-            print(operando_izquierdo_type, operando_derecho_type)
             result_type = cubo.get_tipo(operando_izquierdo_type, operando_derecho_type, op)
             if result_type != 'error':
                 quad = (op, operando_izquierdo['mem'], -1, operando_derecho['mem'])
@@ -300,20 +299,19 @@ def p_ver_dimentions(p):
         
 def p_create_dim_quad(p):
     '''create_dim_quad : '''
-    global pOperandos, tmpCounter
+    global pOperandos, tmpCounter, procedures
     quad = ('ver', pOperandos[-1]['id'], 0, node['lsup'])
     cuadruplosIds.append(quad)
     quad = ('ver', pOperandos[-1]['mem'], 0, node['lsup'])
     cuadruplos.append(quad)
-    print('creating dim for', pOperandos[-1]['id'])
 
     if(node['next']):
         aux = pOperandos.pop()
-        print('theaux', aux)
         result = avail.next()
         tmpCounter += 1
+        procedures.add_tmp(actualFunId, 'int')
         m = node['m']
-        temporales[result] = virtualMemoryDirs['temppointer']
+        temporales[result] = virtualMemoryDirs['tempint']
         if(str(m) not in constantes.keys()):
             constantes[str(m)] = virtualMemoryDirs['constint']
             virtualMemoryDirs['constint'] += 1
@@ -331,6 +329,7 @@ def p_create_dim_quad(p):
         aux1 = pOperandos.pop()
         result = avail.next()
         tmpCounter += 1
+        procedures.add_tmp(actualFunId, 'int')
         temporales[result] = virtualMemoryDirs['tempint']
         virtualMemoryDirs['tempint'] += 1
         quad = ('+', aux1['id'], aux2['id'], result)
@@ -351,7 +350,6 @@ def p_next_dim(p):
     pilaDim.append((operando, dim))
     # Get the next node
     node = procedures.get_node(actualFunId, operando['id'], dim)
-    print(node)
 
 def p_create_final_dim_quads(p):
     '''create_final_dim_quads : '''
@@ -360,10 +358,10 @@ def p_create_final_dim_quads(p):
     result = avail.next()
     global tmpCounter
     tmpCounter += 1
+    procedures.add_tmp(actualFunId, 'pointer')
     # print('vartype', actualVarType)
     # print('varid', actualVarId)
     var = pilaDim[-1][0]['id']
-    print(var)
     temporales[result] = virtualMemoryDirs['temppointer']
     virtualMemoryDirs['temppointer'] = virtualMemoryDirs['temppointer'] + 1
     quad1 = ('sumaDir', aux1['id'], var, result)
@@ -632,6 +630,7 @@ def p_generate_temp_var(p):
     result = avail.next()
     global tmpCounter
     tmpCounter += 1
+    procedures.add_tmp(actualFunId, actualVarType)
     if actualVarType == 'int':
         temporales[result] = virtualMemoryDirs['tempint']
         virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1
@@ -915,6 +914,7 @@ def quad_generator_4args():
         result = avail.next()
         global tmpCounter
         tmpCounter += 1
+        procedures.add_tmp(actualFunId, result_type)
         if result_type == 'int':
             temporales[result] = virtualMemoryDirs['tempint']
             virtualMemoryDirs['tempint'] = virtualMemoryDirs['tempint'] + 1

@@ -15,11 +15,34 @@ class DirectorioProcedimientos(object):
                 'vars': TablaVariables(),
                 'numVars': numVars,
                 'quadNum': quad,
+                'tmps': []
             }
             #print("added function: " + name)
         else:
             print("function" + name + " already declared")
     
+    def add_tmp(self, name, tmp):
+        self.list[name]['tmps'].append(tmp)
+    
+    def set_type_spaces(self, fName):
+        self.list[fName]['spaces'] = {
+            'localint': self.list[fName]['vars'].get_spaces('int'),
+            'localfloat': self.list[fName]['vars'].get_spaces('float'),
+            'localchar': self.list[fName]['vars'].get_spaces('char'),
+            'tmpint':  self.get_space(fName,'int'),
+            'tmpfloat': self.get_space(fName, 'float'),
+            'tmpchar': self.get_space(fName, 'char'),
+            'tmpbool': self.get_space(fName, 'bool'),
+            'tmppointer': self.get_space(fName, 'pointer'),
+        }
+    
+    def get_space(self, fName, tipo):
+        counter = 0
+        for element in self.list[fName]['tmps']:
+            if element == tipo:
+                counter += 1
+        return counter
+
     def search(self, name):
         return name in self.list
 
