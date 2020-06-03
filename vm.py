@@ -29,10 +29,17 @@ def isTmp(dir):
     else:
         return False
 
+def isPointer(dir):
+    dir = int(dir)
+    if dir>= 29000:
+        return True
+    else:
+        return False
+
 # Get var in direction by adress and actual Function
 def get_var(dir):
     actualFun = pilaFunciones[-1]
-    if isLocal(dir) or actualFun != 'main' and isTmp(dir):
+    if isLocal(dir) or actualFun != 'global' and isTmp(dir) or actualFun != 'global' and isPointer(dir):
         return convert(memoria[actualFun][dir])
     else:
         return convert(memoria[dir])
@@ -40,7 +47,7 @@ def get_var(dir):
 # Save result to local or global direction
 def save_result(dir, result):
     actualFun = pilaFunciones[-1]
-    if isLocal(dir) or actualFun != 'main' and isTmp(dir):
+    if isLocal(dir) or actualFun != 'global' and isTmp(dir) or actualFun != 'global' and isPointer(dir):
         memoria[actualFun][dir] = result
     else:
         memoria[dir] = result
@@ -63,7 +70,7 @@ def convert(x):
         else:
             return float(x)
     except TypeError:
-        print('x', x)
+        print('var:', x)
         print("TypeError, failed to run")
         sys.exit()
     except ValueError:
@@ -74,11 +81,10 @@ def convert(x):
 def execute():
     global IP
     last_quad = len(cuadruplos)-1
-    x = 0 # TODO: Eliminar variable de control para evitar ciclos infinitos
-    while (IP != last_quad and x<1000):
+    while (IP != last_quad):
         cod_op = cuadruplos[IP][0]
         quad = cuadruplos[IP]
-        print(IP, cod_op, quad)
+        # print(IP, cod_op, quad)
         if cod_op == '+':
             op_izq = get_var(quad[1])
             op_der = get_var(quad[2])
@@ -108,8 +114,13 @@ def execute():
             actualFun = pilaFunciones[-1]
             dir_op_izq = quad[1]
             dir_op_der = quad[3]
-            if isLocal(dir_op_izq) or actualFun != 'main' and isTmp(dir_op_izq):
-                if isLocal(dir_op_der) or actualFun != 'main' and isTmp(dir_op_der):
+            if isPointer(dir_op_izq):
+                if isLocal(dir_op_der) or actualFun != 'global' and isTmp(dir_op_der):
+                    memoria[actualFun][str(memoria[actualFun][dir_op_izq])] = memoria[actualFun][dir_op_der]
+                else:
+                    memoria[actualFun][str(memoria[actualFun][dir_op_izq])] = memoria[dir_op_der]
+            elif isLocal(dir_op_izq) or actualFun != 'global' and isTmp(dir_op_izq):
+                if isLocal(dir_op_der) or actualFun != 'global' and isTmp(dir_op_der):
                     memoria[actualFun][dir_op_izq] = memoria[actualFun][dir_op_der]
                 else:
                     memoria[actualFun][dir_op_izq] = memoria[dir_op_der]
@@ -119,16 +130,22 @@ def execute():
         elif cod_op == 'print':
             actualFun = pilaFunciones[-1]
             dir_op = quad[3]
-            if isLocal(dir_op) or actualFun != 'main' and isTmp(dir_op):
+            if isPointer(dir_op):
+                toPrint = memoria[actualFun][str(memoria[actualFun][dir_op])]
+            elif isLocal(dir_op) or actualFun != 'global' and isTmp(dir_op):
                 toPrint = memoria[actualFun][dir_op]
             else:
                 toPrint = memoria[dir_op]
             print(toPrint)
             IP += 1
-        # elif cod_op == 'read': # TODO Solo funciona por el momento para leer numeros
-        #     toRead = input()
-        #     memoria[cuadruplos[IP][3]] = convert(toRead)
-        #     IP += 1
+        elif cod_op == 'read': # TODO Solo funciona por el momento para leer numeros
+            toRead = input()
+            actualFun = pilaFunciones[-1]
+            if actualFun == 'global':
+                memoria[quad[3]] = convert(toRead)
+            else:
+                memoria[actualFun][quad[3]] = convert(toRead)
+            IP += 1
         elif cod_op == '<':
             op_izq = get_var(quad[1])
             op_der = get_var(quad[2])
@@ -155,7 +172,7 @@ def execute():
             IP += 1
         elif cod_op == '&&':
             actualFun = pilaFunciones[-1]
-            if actualFun == 'main':
+            if actualFun == 'global':
                 op_izq = memoria[quad[1]]
                 op_der = memoria[quad[2]]
                 result = op_izq and op_der
@@ -168,7 +185,7 @@ def execute():
             IP += 1
         elif cod_op == '||':
             actualFun = pilaFunciones[-1]
-            if actualFun == 'main':
+            if actualFun == 'global':
                 op_izq = memoria[quad[1]]
                 op_der = memoria[quad[2]]
                 result = op_izq and op_der
@@ -196,11 +213,10 @@ def execute():
         elif cod_op == 'GOTOF':
             dir = quad[1]
             actualFun = pilaFunciones[-1]
-            if isLocal(dir) or actualFun != 'main' and isTmp(dir):
+            if isLocal(dir) or actualFun != 'global' and isTmp(dir):
                 flag =  memoria[actualFun][dir]
             else:
                 flag = memoria[dir]
-
             if flag == False:
                 IP = int(quad[3])
             else:
@@ -208,7 +224,7 @@ def execute():
         elif cod_op == 'GOTOV':
             dir = quad[1]
             actualFun = pilaFunciones[-1]
-            if isLocal(dir) or actualFun != 'main' and isTmp(dir):
+            if isLocal(dir) or actualFun != 'global' and isTmp(dir):
                 flag = memoria[actualFun][dir]
             else:
                 flag = memoria[dir]
@@ -220,7 +236,6 @@ def execute():
         elif cod_op == 'ERA':
             funName = quad[3]
             fun = funName + str(len(pilaFunciones))
-            # pilaFunciones.append(fun)
             nextFun.append(fun)
             memoria[fun] = {}
 
@@ -255,13 +270,15 @@ def execute():
             if(varsFun>0):
                 for i in range(19000, 19000+varsFun):
                     memoria[fun][str(i)] = None
-            # print(memoria[fun])
+            varsFun = int(funciones[funName]['tmppointer'])
+            if(varsFun>0):
+                for i in range(29000, 29000+varsFun):
+                    memoria[fun][str(i)] = None
             IP += 1
         elif cod_op == 'PARAMETER':
             actualFun = pilaFunciones[-1]
             nextF = nextFun.pop()
-            # print('parameter', nextF, actualFun)
-            if actualFun == 'main':
+            if actualFun == 'global':
                 memoria[nextF][quad[3]] = memoria[quad[1]]
             else:
                 memoria[nextF][quad[3]] = memoria[actualFun][quad[1]]
@@ -280,21 +297,33 @@ def execute():
             IP = pSaltos.pop()
         elif cod_op == 'RET':
             actualFun = pilaFunciones[-1]
-            # print('ret', actualFun)
-            if actualFun == 'main':
+            if actualFun == 'global':
                 memoria[quad[1]] = ret_var.pop()
             else:
                 memoria[actualFun][quad[1]] = ret_var.pop()
             IP += 1
         elif cod_op == 'GOMAIN':
             IP = int(quad[3])
+        elif cod_op == 'ver':
+            lim = int(quad[3])
+            dir = quad[1]
+            cte = get_var(quad[1])
+            if cte >= 0 and cte < lim:
+                0 + 0
+            else:
+                print("error. Index out of range")
+                sys.exit()
+            IP += 1
+        elif cod_op == 'sumaDir':
+            actualFun = pilaFunciones[-1]
+            op_izq = get_var(quad[1])
+            op_der = int(quad[2])
+            result = op_izq + op_der
+            memoria[actualFun][quad[3]] = result
+            IP += 1
         else:
             IP += 1 # TODO No Olvidar quitarlo
-        x += 1
-        print('pilaFunciones', pilaFunciones, memoria)
-        print('pila retornos', ret_var)
-        print()
-        # print('memoria', IP, cod_op)
+        # print()
 
 # Extract functions data from .dout
 def create_functions(data):
@@ -311,7 +340,8 @@ def create_functions(data):
             'intTmp' : newData[6],
             'floatTmp' : newData[7],
             'charTmp' : newData[8],
-            'boolTmp' : newData[9]
+            'boolTmp' : newData[9],
+            'tmppointer': newData[10]
         }
     # Create global chunk of memory
     varsGlobal = int(funciones['global']['intVars'])
@@ -328,23 +358,27 @@ def create_functions(data):
             memoria[str(i)] = None 
     
     # Create main chunk of memory
-    varsMain = int(funciones['main']['intTmp'])
+    varsMain = int(funciones['global']['intTmp'])
     if (varsMain>0):
         for i in range(13000, 13000+varsMain):
             memoria[str(i)] = None
-    varsMain = int(funciones['main']['floatTmp'])
+    varsMain = int(funciones['global']['floatTmp'])
     if (varsMain>0):
         for i in range(15000, 15000+varsMain):
             memoria[str(i)] = None
-    varsMain = int(funciones['main']['charTmp'])
+    varsMain = int(funciones['global']['charTmp'])
     if(varsMain>0):
         for i in range(17000, 17000+varsMain):
             memoria[str(i)] = None 
-    varsMain = int(funciones['main']['boolTmp'])
+    varsMain = int(funciones['global']['boolTmp'])
     if(varsMain>0):
         for i in range(19000, 19000+varsMain):
             memoria[str(i)] = None 
-    pilaFunciones.append('main')
+    varsMain = int(funciones['global']['tmppointer'])
+    if(varsMain>0):
+        for i in range(29000, 29000+varsMain):
+            memoria[str(i)] = None 
+    pilaFunciones.append('global')
 
 # Extract constants data from .dout
 def create_constants(data):
@@ -393,7 +427,7 @@ if __name__ == '__main__':
             data = clean_data(data)
             create(data)
             execute()
-            log()
+            # log()
         except EOFError:
             print(EOFError)
     else:

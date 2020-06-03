@@ -329,6 +329,7 @@ def p_ver_dimentions(p):
         pilaDim.append((operando, dim))
         node = procedures.get_node(actualFunId, operando['id'], 1)
         pOperadores.append('(') #fondo falso
+        pilaNodos.append(node)
     else:
         print("Error: la variable '" + operando['id'] + "' no es dimensionada")
         sys.exit()
@@ -337,17 +338,17 @@ def p_ver_dimentions(p):
 def p_create_dim_quad(p):
     '''create_dim_quad : '''
     global pOperandos, tmpCounter, procedures
-    quad = ('ver', pOperandos[-1]['id'], 0, node['lsup'])
+    quad = ('ver', pOperandos[-1]['id'], 0, pilaNodos[-1]['lsup'])
     cuadruplosIds.append(quad)
-    quad = ('ver', pOperandos[-1]['mem'], 0, node['lsup'])
+    quad = ('ver', pOperandos[-1]['mem'], 0, pilaNodos[-1]['lsup'])
     cuadruplos.append(quad)
 
-    if(node['next']):
+    if(pilaNodos[-1]['next']):
         aux = pOperandos.pop()
         result = avail.next()
         tmpCounter += 1
         procedures.add_tmp(actualFunId, 'int')
-        m = node['m']
+        m = pilaNodos[-1]['m']
         temporales[result] = virtualMemoryDirs['tempint']
         if(str(m) not in constantes.keys()):
             constantes[str(m)] = virtualMemoryDirs['constint']
@@ -386,7 +387,9 @@ def p_next_dim(p):
     dim += 1
     pilaDim.append((operando, dim))
     # Get the next node
+    pilaNodos.pop()
     node = procedures.get_node(actualFunId, operando['id'], dim)
+    pilaNodos.append(node)
 
 def p_create_final_dim_quads(p):
     '''create_final_dim_quads : '''
@@ -412,6 +415,7 @@ def p_create_final_dim_quads(p):
     pOperandos.append(obj)
     pOperadores.pop()
     pilaDim.pop()
+    pilaNodos.pop()
 
 def p_EXPRESION(p):
     '''EXPRESION : T_EXP generate_or_quad EXPRESION_AUX'''
@@ -575,8 +579,8 @@ def p_add_operando_cte(p):
             constantes[string] = virtualMemoryDirs['conststring']
             virtualMemoryDirs['conststring'] += 1
         obj = {
-            'id': str(p[-1]),
-            'mem': constantes[str(p[-1])]
+            'id': string,
+            'mem': constantes[string]
         }
         pOperandos.append(obj)
     # print('added operando: ' + str(p[-1]))

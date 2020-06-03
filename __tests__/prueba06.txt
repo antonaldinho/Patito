@@ -1,19 +1,17 @@
 program prueba06;
-var int i; char j;
+var int i; float x;
 
 function float myFunction (int param1)
 var float f1, f2, f3[5][4], f4[5]; int i[6];
 {
-	f3[i[2+2]][i[1]] = 90;
-	if(f1>f2) {
-		return f2;
-	}
-	else {
-		f1 = myFunction(10) + myFunction(10);
-		return f1;
-	}
+    i[1] = param1;
+    i[2] = 2;
+
+    print(i[2],i[1]);
+    return 1.1;
 }
 main ()
 {
-	i = myFunction(12);
+	x = myFunction(12);
+    print(x);
 }

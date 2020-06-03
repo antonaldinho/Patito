@@ -177,7 +177,7 @@ class DirectorioProcedimientos(object):
     # Print for .dout file
     def print_out_proc(self):  
         for elem in self.list:
-            print('the elem',elem)
+            # print('the elem',elem)
             print(elem, str(self.list[elem]['numVars']), str(self.list[elem]['quadNum']), end=' ') 
             print(str(self.list[elem]['spaces']['localint']), str(self.list[elem]['spaces']['localfloat']), str(self.list[elem]['spaces']['localchar']), end=' ')
             print(str(self.list[elem]['spaces']['tmpint']), str(self.list[elem]['spaces']['tmpfloat']), str(self.list[elem]['spaces']['tmpchar']), str(self.list[elem]['spaces']['tmpbool']), str(self.list[elem]['spaces']['tmppointer']))

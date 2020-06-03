@@ -13,28 +13,17 @@ main ()
     if(a>0 && b>=0) {
         if(a<=10 || b<10) {
             a=23;
-<<<<<<< HEAD:__tests__/05prueba.txt
             b = 1 + 1 + a;
-=======
-            b = 1+ 1+ a;
->>>>>>> dev-bug-cuadruplos:__tests__/prueba05.txt
             print(a,b,c);
             while(b > 20) do {
-                read(c); 
-                print(c);
+                read(b); 
+                print(b);
             }
         } else {
-<<<<<<< HEAD:__tests__/05prueba.txt
             from (a = b + c) until (a > 100) do {
                 while (c < 1) do {
                     a = a + 1;
                     if(10 > 20) {
-=======
-            from (a=b+ c) until (a>100) do {
-                while (c<1 || c==5) do {
-                    a = a+ 1;
-                    if(10>20 && 5 != a) {
->>>>>>> dev-bug-cuadruplos:__tests__/prueba05.txt
                         a = 40 + 40;
                     } else {
                         b = c;
@@ -44,11 +33,7 @@ main ()
         }
         print("YA MERITO ACABA EL PROGRAMA");
     } else {
-<<<<<<< HEAD:__tests__/05prueba.txt
         print (a + 1);
-=======
-        print (a+ 1);
->>>>>>> dev-bug-cuadruplos:__tests__/prueba05.txt
     }
     print("YA ACABAMOS EL PROGRAMA TIA");
 }

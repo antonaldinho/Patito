@@ -16,7 +16,7 @@ main ()
     if (10 == 4) {
         print(a,b);
     } else {
-        print("tamagochi");
+        print("este es la contstante");
     }
     b = recursion(a+ 1);
     print(b*3);
