@@ -12,6 +12,6 @@ function int factorial(int x) {
 
 main() {
     j = 4;
-    i = factorial(j) + factorial(3);
+    i = factorial(j);
     print(i);
 }
