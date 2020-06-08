@@ -1,5 +1,5 @@
 program prueba06;
-var int i; float x;
+var int i; float x, f3[12][2];
 
 function float myFunction (int param1)
 var float f1, f2, f3[5][4], f4[5]; int i[6];
@@ -10,6 +10,9 @@ var float f1, f2, f3[5][4], f4[5]; int i[6];
 }
 main ()
 {
+    f3[1][1] = 78.9;
+    print(f3[1][1]);
 	x = myFunction(12);
+    print(f3[1][1]);
     print(x);
 }

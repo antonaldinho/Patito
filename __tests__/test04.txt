@@ -4,6 +4,7 @@ var
     int arreglo[10];
 
 main() {
-    arreglo[5] = 1;
-    print(arreglo[5]);
+    n = 5;
+    arreglo[0] = 1;
+    print(arreglo[0]);
 }

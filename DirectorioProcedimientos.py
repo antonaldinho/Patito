@@ -48,6 +48,15 @@ class DirectorioProcedimientos(object):
     def search(self, name):
         return name in self.list
 
+    def get_var_scope_type(self, fName, vName):
+        if self.list[fName]['vars'].search(vName) == True and fName != 'global':
+            return 'local'
+        elif self.list['global']['vars'].search(vName):
+            return 'global'
+        else:
+            print("Variable " + str(vName) + " does not exist")
+            
+
     def search_var(self, fName, vName):
         if self.list[fName]['vars'].search(vName) == True:
             return True

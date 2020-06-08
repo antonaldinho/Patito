@@ -403,15 +403,17 @@ def p_create_final_dim_quads(p):
     # print('vartype', actualVarType)
     # print('varid', actualVarId)
     var = pilaDim[-1][0]['id']
-    
-    if actualFunId == 'global':
+    scope = procedures.get_var_scope_type(actualFunId, theVar[-1])
+    print('the scope', scope, actualFunId)
+    if scope == 'global':
         temporales[result] = virtualMemoryDirs['temppointerglobal']
         virtualMemoryDirs['temppointerglobal'] = virtualMemoryDirs['temppointerglobal'] + 1
     else:
         temporales[result] = virtualMemoryDirs['temppointerlocal']
-        virtualMemoryDirs['temppointerglobal'] = virtualMemoryDirs['temppointerlocal'] + 1
+        virtualMemoryDirs['temppointerlocal'] = virtualMemoryDirs['temppointerlocal'] + 1
     quad1 = ('sumaDir', aux1['id'], var, result)
     quad2 = ('sumaDir', aux1['mem'], procedures.get_var_memory_loc(actualFunId, var), temporales[result])
+    print('the quad',quad2)
     cuadruplosIds.append(quad1)
     cuadruplos.append(quad2)
     obj = {
