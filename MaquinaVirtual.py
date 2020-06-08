@@ -47,7 +47,9 @@ def get_value(direction):
             return memorias[-1].get_value(direction)
         if int(direction) < 21000:
             return bool(memorias[-1].get_value(direction))
-    elif int(direction) >= 29000:
+    elif int(direction) >= 29000 and int(direction) < 31000:
+        return get_value(memoriaGlobal.get_value(direction))
+    elif int(direction) >= 31000:
         return get_value(memorias[-1].get_value(direction))
 
 def set_value(direction, value):
@@ -57,12 +59,18 @@ def set_value(direction, value):
     elif int(direction) in range(7000, 20999):
         memorias[-1].set_value(direction, value)
         #print('setted', value, ' in', direction, ' in local')
-    elif int(direction) >= 29000:
+    elif int(direction) >= 29000 and int(direction) < 31000:
+        pointer = memoriaGlobal.get_value(direction)
+        memoriaGlobal.set_value(pointer, value)
+    elif int(direction) >= 31000:
         pointer = memorias[-1].get_value(direction)
         memorias[-1].set_value(pointer, value)
 
 def save_pointer(direction, pointer):
-    memorias[-1].set_value(direction, pointer)
+    if(int(direction) < 31000):
+        memoriaGlobal.set_value(direction, pointer)
+    else:
+        memorias[-1].set_value(direction, pointer)
     
 def calculate(operation, value1, value2):
     if operation == '+':
@@ -99,7 +107,6 @@ def execute():
     while (instructionPointer != last_quad):
         operationCode = cuadruplos[instructionPointer][0]
         quad = cuadruplos[instructionPointer]
-        # print('the operation code', operationCode)
         if operationCode in ('+', '-', '*', '/', '<', '>', '<=', '>=', '&&', '||', '==', '!='):
             izquierdo = get_value(quad[1])
             derecho = get_value(quad[2])

@@ -51,7 +51,8 @@ virtualMemoryDirs = {
     'constfloat': 23000,
     'constchar': 25000,
     'conststring': 27000,
-    'temppointer': 29000
+    'temppointerglobal': 29000,
+    'temppointerlocal': 31000,
 }
 
 # Operation codes
@@ -402,8 +403,13 @@ def p_create_final_dim_quads(p):
     # print('vartype', actualVarType)
     # print('varid', actualVarId)
     var = pilaDim[-1][0]['id']
-    temporales[result] = virtualMemoryDirs['temppointer']
-    virtualMemoryDirs['temppointer'] = virtualMemoryDirs['temppointer'] + 1
+    
+    if actualFunId == 'global':
+        temporales[result] = virtualMemoryDirs['temppointerglobal']
+        virtualMemoryDirs['temppointerglobal'] = virtualMemoryDirs['temppointerglobal'] + 1
+    else:
+        temporales[result] = virtualMemoryDirs['temppointerlocal']
+        virtualMemoryDirs['temppointerglobal'] = virtualMemoryDirs['temppointerlocal'] + 1
     quad1 = ('sumaDir', aux1['id'], var, result)
     quad2 = ('sumaDir', aux1['mem'], procedures.get_var_memory_loc(actualFunId, var), temporales[result])
     cuadruplosIds.append(quad1)

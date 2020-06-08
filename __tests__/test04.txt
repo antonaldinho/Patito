@@ -1,0 +1,9 @@
+program test04;
+var 
+	int i, n, w;
+    int arreglo[10];
+
+main() {
+    arreglo[5] = 1;
+    print(arreglo[5]);
+}
