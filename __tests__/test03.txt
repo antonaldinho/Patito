@@ -1,0 +1,12 @@
+program test03;
+var 
+	float a, b;
+	int c;
+
+main() {
+    from (c = 0) until (c == 10) do {
+        print("ayy lmaoo");
+        c = c + 1;
+    }
+    print(c);
+}

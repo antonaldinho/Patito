@@ -11,5 +11,6 @@ var int x;
 }
 
 main() {
-	c = funcion01(12) + funcion01(11);
+	c = 1 + 2;
+	print(c);
 }

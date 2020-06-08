@@ -308,7 +308,7 @@ def p_generate_equal_quad(p):
                 cuadruplosIds.append(quad2)
                 #create_new_avail()
             else:
-                print("Type missmatch 273")
+                print("Type missmatch")
                 sys.exit()
 
 def p_DIMENSIONES(p):
@@ -355,7 +355,7 @@ def p_create_dim_quad(p):
             virtualMemoryDirs['constint'] += 1
         quad = ('*', aux['id'], m, result)
         cuadruplosIds.append(quad)
-        quad = ('*', aux['id'], constantes[str(m)], temporales[result])
+        quad = ('*', aux['mem'], constantes[str(m)], temporales[result])
         cuadruplos.append(quad)
         obj = {
             'id': result,
@@ -675,7 +675,7 @@ def p_generate_gosub_quad(p):
 def p_generate_temp_var(p):
     '''generate_temp_var : '''
     # Every time we call a function we need to store the value it returns in a tmp variable and append it to the operands list.
-    print('theactualfuntype', actualCallType)
+    # print('theactualfuntype', actualCallType)
     if(actualCallType != 'void'):
         global pOperandos, pTipos
         result = avail.next()
@@ -839,18 +839,20 @@ def p_add_return_quad(p):
     global pOperadores, pOperandos, pTipos, cuadruplos, actualFunId
     if(len(pOperadores) > 0):
         if(pOperadores[-1] == 'RETURN'):
+            # print('the actual fun id direction var',procedures.get_var_memory_loc('global', actualFunId))
+            
             op = pOperadores.pop()
             resultado = pOperandos.pop()
             resultado_type = pTipos.pop()
             if resultado_type == actualFunType:
-                quad = (op, -1, -1, resultado['mem'])
+                quad = (op, -1, procedures.get_var_memory_loc('global', actualFunId), resultado['mem'])
                 # print("cuadruplo: " + str(quad))
                 
                 cuadruplos.append(quad)
                 quad2 = (op, -1, -1, resultado['id'])
                 cuadruplosIds.append(quad2)
             else:
-                print("Type missmatch 790")
+                print("Type missmatch")
                 sys.exit()
 
 # def p_generate_endproc(p):
@@ -955,7 +957,7 @@ def p_add_var(p):
         else:
             memoryType = 'local' + actualVarType
         
-        print(actualFunId, actualVarId, actualVarType, virtualMemoryDirs[memoryType])
+        # print(actualFunId, actualVarId, actualVarType, virtualMemoryDirs[memoryType])
         procedures.add_var(actualFunId, actualVarId, actualVarType, virtualMemoryDirs[memoryType])
         virtualMemoryDirs[memoryType] = virtualMemoryDirs[memoryType] + 1
     else:
@@ -1103,7 +1105,7 @@ if __name__ == '__main__':
             f.close()
             if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
                 print ("Finished compiling")
-                printCuadruplos()
+                # printCuadruplos()
                 createDout()
 
         except EOFError:

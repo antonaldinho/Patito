@@ -36,7 +36,7 @@ class DirectorioProcedimientos(object):
             'tmpbool': self.get_space(fName, 'bool'),
             'tmppointer': self.get_space(fName, 'pointer'),
         }
-        print('type spaces', fName , self.list[fName]['spaces'] )
+        # print('type spaces', fName , self.list[fName]['spaces'] )
     
     def get_space(self, fName, tipo):
         counter = 0

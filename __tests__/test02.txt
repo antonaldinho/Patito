@@ -1,0 +1,17 @@
+program test02;
+var int i, j;
+
+function int factorial(int x) {
+    if(x == 0) {
+        return 1;
+    }
+    else {
+        return (factorial(x - 1) * x);
+    }
+}
+
+main() {
+    j = 4;
+    i = factorial(j) + factorial(3);
+    print(i);
+}

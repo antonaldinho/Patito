@@ -1,27 +1,14 @@
-baseDirections = {
-    'globalint': 1000,
-    'globalfloat': 3000,
-    'globalchar': 5000,
-    'localint': 7000,
-    'localfloat': 9000,
-    'localchar': 11000,
-    'tempint': 13000,
-    'tempfloat': 15000,
-    'tempchar': 17000,
-    'tempbool': 19000,
-    'constint': 21000,
-    'constfloat': 23000,
-    'constchar': 25000,
-    'conststring': 27000,
-}
+import sys
 
 class Memoria:
     def __init__(self):
-        self.createMemory()
-    
-    def createMemory(self):
-        self.ints = []
-        self.floats = []
-        self.chars = []
-        self.bools = []
-        self.pointers = []
+        self.values = {}
+
+    def set_value(self, address, value):
+        self.values[address] = value
+
+    def get_value(self, address):
+        if address not in self.values:
+            print("Error. La direccion no se encuentra en este ambiente")
+            sys.exit()
+        return self.values[address]
