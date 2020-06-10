@@ -5,6 +5,7 @@ class DirectorioProcedimientos(object):
     def __init__(self):
         self.list = {}
     
+    # Crear funcion
     def add_function(self, name, fType, numParams, typeParams, nameParams, numVars, quad):
         if(name not in self.list.keys()):
             self.list[name] = {
@@ -22,9 +23,11 @@ class DirectorioProcedimientos(object):
         else:
             print("function" + name + " already declared")
     
+    # agregar variable temporal
     def add_tmp(self, name, tmp):
         self.list[name]['tmps'].append(tmp)
     
+    # Generar el tipo de espacios
     def set_type_spaces(self, fName):
         self.list[fName]['spaces'] = {
             'localint': self.list[fName]['vars'].get_spaces('int'),
@@ -38,6 +41,7 @@ class DirectorioProcedimientos(object):
         }
         # print('type spaces', fName , self.list[fName]['spaces'] )
     
+    # Obtener espacios de memoria
     def get_space(self, fName, tipo):
         counter = 0
         for element in self.list[fName]['tmps']:
@@ -45,9 +49,11 @@ class DirectorioProcedimientos(object):
                 counter += 1
         return counter
 
+    # Buscar
     def search(self, name):
         return name in self.list
 
+    # Obtener el scope de la variable recibida
     def get_var_scope_type(self, fName, vName):
         if self.list[fName]['vars'].search(vName) == True and fName != 'global':
             return 'local'
@@ -56,7 +62,7 @@ class DirectorioProcedimientos(object):
         else:
             print("Variable " + str(vName) + " does not exist")
             
-
+    # Buscar una variable en una función
     def search_var(self, fName, vName):
         if self.list[fName]['vars'].search(vName) == True:
             return True
@@ -66,9 +72,11 @@ class DirectorioProcedimientos(object):
             print("Variable " + str(vName) + " does not exist")
             return False
 
+    # Obtener Tipo de funcion
     def get_function_type(self, fName):
         return self.list[fName]['type']
 
+    # Obtener el tipo de variable que se encuentra en una funcion
     def get_var_type(self, fName, vName):
         if self.list[fName]['vars'].search(vName) == True:
             return self.list[fName]['vars'].get_type(vName)
@@ -78,6 +86,7 @@ class DirectorioProcedimientos(object):
             print("Variable " + str(vName) +" does not exist")
             sys.exit()
     
+    # Obtener ubicacion de memoria de una variable dada su funcion
     def get_var_memory_loc(self, fName, vName):
         if self.list[fName]['vars'].search(vName) == True:
             return self.list[fName]['vars'].get_memory_loc(vName)
@@ -87,18 +96,23 @@ class DirectorioProcedimientos(object):
             print("Variable " + str(vName) +" does not exist")
             sys.exit()
     
+    # Obtener el tipo de parametro 
     def get_parameter_type(self, fName, pos):
         return self.list[fName]['typeParams'][pos]
 
+    # Obtener el numero de parametros que una funcion tiene
     def get_numParams(self, fName):
         return self.list[fName]['numParams']
 
+    # Obtener el numero de quad asignado a la funcion
     def get_quad_num(self, fName):
         return self.list[fName]['quadNum']
     
+    # Obtener la direccion en la que esta guardado un parametro
     def get_param_dir(self, fName, pPos):
         return self.list[fName]['paramLocs'][pPos-1]
 
+    # Guardar una nueva variable en una funcion
     def add_var(self, fName, vName, vType, vMemoryLoc):
         if(self.list[fName]['vars'].search(vName) == True):
             print("Variable already exists")
@@ -109,12 +123,14 @@ class DirectorioProcedimientos(object):
             # type = vType + 'Vars'
             # self.list[fName][type] = self.list[fName][type] +1
     
+    # Agregar un parametro a la funcion
     def add_param(self, fName, vName, vType):
         self.list[fName]['numParams'] = self.list[fName]['numParams'] + 1
         self.list[fName]['nameParams'].append(vName)
         self.list[fName]['typeParams'].append(vType)
         self.list[fName]['paramLocs'].append(self.get_var_memory_loc(fName, vName))
     
+    # Agregar el numero de quad de una funcion
     def add_quad_counter(self, fName, quad):
         self.list[fName]['quadNum'] = quad
 
@@ -124,16 +140,20 @@ class DirectorioProcedimientos(object):
             type = vType + 'Tmp'
             self.list[fName][type] = self.list[fName][type]+1
 
+    # Borrar lista de variables
     def delete_var_table(self, fName):
         self.list[fName]['vars'] = None
 
+    # Enlistar variables
     def list_vars(self, name):
         if name in self.list:
             self.list[name]['vars'].print_all_vars()
     
+    # Sumar numero de variables temporales
     def add_num_tmp(self, fName, numTmpVars):
         self.list[fName]['numTmp'] = numTmpVars
 
+    # Imprimir procedimientos
     def print_proc(self):
         for elem in self.list:
             print(elem, self.list[elem])

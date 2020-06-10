@@ -15,6 +15,7 @@ memoriaGlobal = Memoria()
 pilaParams = []
 pilaEjecucion = []
 
+# Obtener el valor que se encuentra en direction
 def get_value(direction):
     #print('getting value', direction)
     if int(direction) in range(21000, 28999): # constant value
@@ -27,7 +28,7 @@ def get_value(direction):
     elif int(direction) in range(1000, 6999): # globals
         if int(direction) < 3000:
             return int(memoriaGlobal.get_value(direction))
-        if int(direction) < 5000:
+        if int(direction) < 5000:v
             return float(memoriaGlobal.get_value(direction))
         if int(direction) < 7000:
             return memoriaGlobal.get_value(direction)
@@ -52,6 +53,7 @@ def get_value(direction):
     elif int(direction) >= 31000:
         return get_value(memorias[-1].get_value(direction))
 
+# Guardar value en direction
 def set_value(direction, value):
     if int(direction) in range(1000, 6999): # globals
         memoriaGlobal.set_value(direction, value)
@@ -98,7 +100,7 @@ def calculate(operation, value1, value2):
     elif operation == '==':
         return value1 == value2
 
-# Execute quads
+# Execute quads and read operation code
 def execute():
     global instructionPointer, memorias, pilaParams, pilaEjecucion
     last_quad = len(cuadruplos)-1

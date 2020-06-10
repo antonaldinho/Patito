@@ -26,6 +26,6 @@ var int res;
 
 main ()
 {
-    a = fibo(20);
-    print(a);
+    read(a);
+    print(fibo(a));
 }

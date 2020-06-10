@@ -210,6 +210,7 @@ def p_is_local(p):
     global isGlobal
     isGlobal = False
 
+# Crear una nueva funcion y gaurdarla en el directorio de procedimientos
 def p_save_func(p):
     '''save_func : '''
     global actualFunId
@@ -337,7 +338,7 @@ def p_ver_dimentions(p):
         print("Error: la variable '" + operando['id'] + "' no es dimensionada")
         sys.exit()
 
-        
+# Acceder variables dimensionadas 
 def p_create_dim_quad(p):
     '''create_dim_quad : '''
     global pOperandos, tmpCounter, procedures
@@ -558,6 +559,7 @@ def p_r_paren_expression(p):
     '''r_paren_expression : '''
     pOperadores.pop()
 
+# Agregar una constante con su operando
 def p_add_operando_cte(p):
     '''add_operando_cte : '''
     global pOperandos
@@ -686,6 +688,7 @@ def p_generate_gosub_quad(p):
     cuadruplos.append(quad)
     cuadruplosIds.append(quad)
 
+# Generar variable temporales y asignarles una direccion
 def p_generate_temp_var(p):
     '''generate_temp_var : '''
     # Every time we call a function we need to store the value it returns in a tmp variable and append it to the operands list.
@@ -956,6 +959,7 @@ def p_error(token):
     else:
         print('Unexpected end of input')
 
+# Agregar una variables después de ser declarada
 def p_add_var(p):
     '''add_var : '''
     global procedures
@@ -978,6 +982,7 @@ def p_add_var(p):
         print("Function does not exist.")
         sys.exit()
 
+# Generar quad de 4 argumentos como artmeticos
 def quad_generator_4args():
     global pOperadores, pOperandos, pTipos, cuadruplos
     op = pOperadores.pop()
@@ -1019,7 +1024,8 @@ def quad_generator_4args():
     else:
         print("type mismatch")
         sys.exit()
-	
+
+# Generar quad con 2 argumentos
 def quad_generator_2args():
     global pOperadores, pOperandos, pTipos, cuadruplos
     op = pOperadores.pop()
@@ -1035,6 +1041,7 @@ def quad_generator_2args():
     pTipos.append(operando_type)
     #create_new_avail()
 
+# Crear quad para ciclos y condiciones
 def add_if_while_from(goto):
     global pTipos, pSaltos, cuadruplos
     exp_type = pTipos.pop()
@@ -1081,7 +1088,7 @@ def create_new_avail():
 def createDout():
     global program_name
     orig_stdout = sys.stdout
-    filename = str(program_name + ".dout")
+    filename = str("__dout__/" + program_name + ".dout")
     print(filename)
     file = open(filename, "w")
     sys.stdout = file
@@ -1119,9 +1126,6 @@ if __name__ == '__main__':
             f.close()
             if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
                 print ("Finished compiling")
-                print(pOperandos)
-                print(pTipos)
-                # printCuadruplos()
                 createDout()
 
         except EOFError:

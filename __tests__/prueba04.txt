@@ -36,9 +36,9 @@ main ()
 	b = (2+ 4) / 8;
 	c = b + a;
 
-    suma(1);
+    suma(1)
     result = a*b*c;
-    myFunction(result, b, c, 4.4);
+    myFunction(result, b, c, 4.4)
 
 	while (a < c) do {
 		b = b+ 1;
@@ -46,6 +46,6 @@ main ()
 		print(b);
 		print(1+ 2+ 3+ 4.4+ 10.2+ 0.8+ 0.8+ 4.4);
 	} 
-    imprime();
+    imprime()
 	a = a+b+c;
 }

@@ -1,0 +1,8 @@
+Finished compiling
+__dout__/prueba05.dout
+23
+25
+3
+10
+YA MERITO ACABA EL PROGRAMA
+YA ACABAMOS EL PROGRAMA TIA
