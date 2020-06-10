@@ -31,6 +31,7 @@ numDims = 0
 pilaNodos = []
 
 theVar = [] #variable para trackear la variable que se esta llamando
+theVarType = []
 
 actualCall = ''
 actualCallType = ''
@@ -324,6 +325,7 @@ def p_ver_dimentions(p):
     '''ver_dimentions : '''
     operando = pOperandos.pop()
     tipo = pTipos.pop()
+    theVarType.append(tipo)
     global dim, pilaDim, numDims, node, pilaNodos, pOperadores
     if procedures.is_dimentioned(actualFunId, operando['id']):
         dim = 1
@@ -403,8 +405,10 @@ def p_create_final_dim_quads(p):
     # print('vartype', actualVarType)
     # print('varid', actualVarId)
     var = pilaDim[-1][0]['id']
+    print('the var')
     scope = procedures.get_var_scope_type(actualFunId, theVar[-1])
-    print('the scope', scope, actualFunId)
+    print(actualFunId, actualCall)
+    print('the scope', scope)
     if scope == 'global':
         temporales[result] = virtualMemoryDirs['temppointerglobal']
         virtualMemoryDirs['temppointerglobal'] = virtualMemoryDirs['temppointerglobal'] + 1
@@ -413,7 +417,6 @@ def p_create_final_dim_quads(p):
         virtualMemoryDirs['temppointerlocal'] = virtualMemoryDirs['temppointerlocal'] + 1
     quad1 = ('sumaDir', aux1['id'], var, result)
     quad2 = ('sumaDir', aux1['mem'], procedures.get_var_memory_loc(actualFunId, var), temporales[result])
-    print('the quad',quad2)
     cuadruplosIds.append(quad1)
     cuadruplos.append(quad2)
     obj = {
@@ -424,6 +427,8 @@ def p_create_final_dim_quads(p):
     pOperadores.pop()
     pilaDim.pop()
     pilaNodos.pop()
+    pTipos.append(theVarType.pop())
+    
 
 def p_EXPRESION(p):
     '''EXPRESION : T_EXP generate_or_quad EXPRESION_AUX'''
@@ -621,7 +626,8 @@ def p_add_operando_var(p):
     global pOperadores
     global actualFunId, theVar
     varId = p[-1]
-    theVar.append(varId)
+    if(procedures.is_dimentioned(actualFunId, varId)):
+        theVar.append(varId)
     if(procedures.search_var(actualFunId, varId)):
         tipo = procedures.get_var_type(actualFunId, varId)
         if tipo == 'int':
@@ -697,7 +703,7 @@ def p_generate_temp_var(p):
             temporales[result] = virtualMemoryDirs['tempfloat']
             virtualMemoryDirs['tempfloat'] = virtualMemoryDirs['tempfloat'] + 1
         elif actualCallType == 'char':
-            temporales[result] = virtualMemoryDirs['tempfloat']
+            temporales[result] = virtualMemoryDirs['tempchar']
             virtualMemoryDirs['tempchar'] = virtualMemoryDirs['tempchar'] + 1
         quad = ('RET', temporales[result], -1, procedures.get_var_memory_loc('global', actualCall))
         quad2 = ('RET', result, -1,  actualCall)
@@ -1113,6 +1119,8 @@ if __name__ == '__main__':
             f.close()
             if (yacc.parse(data, tracking=True) == 'PROGRAM COMPILED'):
                 print ("Finished compiling")
+                print(pOperandos)
+                print(pTipos)
                 # printCuadruplos()
                 createDout()
 

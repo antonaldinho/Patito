@@ -7,7 +7,7 @@ main ()
 {
 	a = 0;
 	b = 1;
-    read(n);
+    n = 8;
     if (n<0) {
         print("Incorrect Input");
     } else {

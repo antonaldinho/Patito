@@ -1,18 +1,35 @@
 program prueba06;
-var int i; float x, f3[12][2];
+var int i, j, array[10][10], x;
 
-function float myFunction (int param1)
-var float f1, f2, f3[5][4], f4[5]; int i[6];
+function void findInArray (int param1)
+var int i, j, booleano;
 {
-    f3[1][1] = 13.3;
-    print(f3[1][1]);
-    return 1.1;
+    booleano = 0;
+    from (i = 0) until (i == 10) do {
+        from (j = 0) until (j == 10) do {
+            array[i][j] = i + j;
+            if(array[i][j] == param1) {
+                booleano = 1;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    if(booleano == 1) {
+        print("Si esta");
+    }
+    else {
+        print("No esta");
+    }
 }
 main ()
 {
-    f3[1][1] = 78.9;
-    print(f3[1][1]);
-	x = myFunction(12);
-    print(f3[1][1]);
-    print(x);
+    from (i = 0) until (i == 10) do {
+        from (j = 0) until (j == 10) do {
+            array[i][j] = i + j;
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+	findInArray(0)
 }

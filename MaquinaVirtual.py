@@ -107,10 +107,10 @@ def execute():
     while (instructionPointer != last_quad):
         operationCode = cuadruplos[instructionPointer][0]
         quad = cuadruplos[instructionPointer]
+        # print(instructionPointer, operationCode)
         if operationCode in ('+', '-', '*', '/', '<', '>', '<=', '>=', '&&', '||', '==', '!='):
             izquierdo = get_value(quad[1])
             derecho = get_value(quad[2])
-            # print('the types', type(izquierdo), type(derecho))
             result = calculate(operationCode, izquierdo, derecho)
             set_value(quad[3], result)
             #print('completed quad', instructionPointer)
@@ -121,6 +121,7 @@ def execute():
             #print('completed quad', instructionPointer)
             instructionPointer += 1
         elif operationCode == 'print':
+            # print(memorias[-1])
             value = get_value(quad[3])
             print(value)
             instructionPointer += 1
@@ -167,7 +168,7 @@ def execute():
             set_value(quad[2], derecho)
             instructionPointer += 1
         elif operationCode == 'ENDPROC':
-            poppedMemory = memorias.pop()
+            memorias.pop()
             instructionPointer = pilaEjecucion.pop()
         elif operationCode == 'sumaDir':
             val1 = get_value(quad[1])
@@ -179,7 +180,9 @@ def execute():
             verificando = get_value(quad[1])
             linf = int(quad[2])
             lsup = int(quad[3])
-            if verificando in range(linf, lsup):
+            # print('the verificando', verificando, linf, lsup)
+            # print(type(verificando), type(linf), type(lsup))
+            if verificando in range(linf, lsup + 1):
                 instructionPointer += 1
             else:
                 print("Index out of range")
