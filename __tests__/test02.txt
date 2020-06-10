@@ -11,7 +11,7 @@ function int factorial(int x) {
 }
 
 main() {
-    j = 4;
+    read(j);
     i = factorial(j);
     print(i);
 }

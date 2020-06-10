@@ -107,7 +107,6 @@ def execute():
     while (instructionPointer != last_quad):
         operationCode = cuadruplos[instructionPointer][0]
         quad = cuadruplos[instructionPointer]
-        # print(instructionPointer, operationCode)
         if operationCode in ('+', '-', '*', '/', '<', '>', '<=', '>=', '&&', '||', '==', '!='):
             izquierdo = get_value(quad[1])
             derecho = get_value(quad[2])
@@ -187,6 +186,11 @@ def execute():
             else:
                 print("Index out of range")
                 sys.exit()
+        elif operationCode == 'read':
+            theInput = input()
+            theInput = int(theInput)
+            set_value(quad[3], theInput)
+            instructionPointer += 1
             
 
 # Extract functions data from .dout
