@@ -1,0 +1,10 @@
+program test05;
+var int i, j;
+
+function void factorial(int x, int y) {
+    print(x, y);
+}
+
+main() {
+    factorial(13, 23)
+}

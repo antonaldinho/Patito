@@ -1,0 +1,31 @@
+program fibonaccirec;
+var
+    int a, b, c, n, i;
+
+function int fibo(int n) 
+var int res;
+{
+    if (n < 0) {
+        print("Incorrect Output");
+        return -1;
+    } 
+    else {
+        if (n == 0) {
+            return 0;
+        } 
+        else {
+            if (n == 1) {
+                return 1;
+            }
+            else {
+                return(fibo(n - 1) + fibo(n - 2));
+            }
+        }
+    }
+}
+
+main ()
+{
+    read(a);
+    print(fibo(a));
+}

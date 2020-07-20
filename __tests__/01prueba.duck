@@ -1,0 +1,15 @@
+program Example;
+var 
+  int i, j;
+  float myFloat, mySecondFloat;
+  char myChar, mySecondChar;
+  int matrix[3][4], prueba;
+main() {
+  mySecondChar = 'a';
+  if (2 < 1) {
+     myChar = 'b';
+  } else {
+    myChar = 'c';
+  }
+  print("Good Job");
+}

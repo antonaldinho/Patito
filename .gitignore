@@ -130,3 +130,11 @@ dmypy.json
 
 # DS_Store
 .DS_Store
+
+#out files
+*.out
+
+parsetab.py
+PatitoSyntax_test.py
+*log.txt
+*.dout

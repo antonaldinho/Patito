@@ -1,0 +1,24 @@
+program test01;
+var 
+	float a, b;
+	int c;
+
+function int funcion02 (int myParam)
+var int x;
+{
+	x = 20 + myParam;
+	return x;
+}
+
+function int funcion01 (int myParam)
+var int x;
+{
+	x = myParam + 10;
+	return funcion02(x);
+}
+
+main() {
+	c = funcion01(5);
+	print("ayy lmaoo");
+    print(c);
+}

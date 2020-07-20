@@ -1,0 +1,20 @@
+program factorialcic;
+var int num, i, res;
+
+function int pelos(int x, int y) {
+    return x * y;
+}
+
+function void factorial(int num) {
+    res = 1;
+    from (i = 2) until ( i == num + 1) do {
+        res = res * i;
+        i = i + 1;
+    }
+    print(res);
+    print(pelos(2,3));
+}
+
+main() {
+    factorial(4)
+}

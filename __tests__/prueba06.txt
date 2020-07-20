@@ -1,0 +1,35 @@
+program prueba06;
+var int i, j, array[10][10], x;
+
+function void findInArray (int param1)
+var int i, j, booleano;
+{
+    booleano = 0;
+    from (i = 0) until (i == 10) do {
+        from (j = 0) until (j == 10) do {
+            array[i][j] = i + j;
+            if(array[i][j] == param1) {
+                booleano = 1;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+    if(booleano == 1) {
+        print("Si esta");
+    }
+    else {
+        print("No esta");
+    }
+}
+main ()
+{
+    from (i = 0) until (i == 10) do {
+        from (j = 0) until (j == 10) do {
+            array[i][j] = i + j;
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+	findInArray(0)
+}
