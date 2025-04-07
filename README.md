@@ -1,2 +1,2 @@
 # Patito-
-Proyecto final de Diseño de Compiladores
+Final project for my Compilers Design class.
